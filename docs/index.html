@@ -1,0 +1,1513 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Medir la pobreza sin dejar a nadie atrás · CASEN 2024</title>
+  <meta name="description" content="Proyecto del curso ETI195 (Ética para Ciencia de Datos y Estadística): exploración, sesgos, explicabilidad y privacidad al predecir la pobreza multidimensional con la Encuesta CASEN 2024.">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Medir la pobreza sin dejar a nadie atrás">
+  <meta property="og:description" content="Un recorrido ético por la Encuesta CASEN 2024 en cuatro talleres.">
+  <meta name="theme-color" content="#f7f6f2">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%231c5cab'/%3E%3Cg fill='%23fff'%3E%3Ccircle cx='10.5' cy='10.5' r='3.2'/%3E%3Ccircle cx='21.5' cy='10.5' r='3.2' opacity='.45'/%3E%3Ccircle cx='10.5' cy='21.5' r='3.2' opacity='.45'/%3E%3Ccircle cx='21.5' cy='21.5' r='3.2' opacity='.45'/%3E%3C/g%3E%3C/svg%3E">
+
+  <!-- 1) Antes de pintar: marca que hay JavaScript -->
+  <script>
+    document.documentElement.classList.add('js');
+  </script>
+
+  <!-- 2) Tipografías: Source Serif 4 (títulos) e Inter (texto e interfaz) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400..700;1,8..60,400..700&display=swap">
+
+  <!-- 3) Estilos propios -->
+  <link rel="stylesheet" href="assets/css/estilos.css">
+
+  <!-- 4) Datos y componentes: deben cargarse ANTES que Alpine -->
+  <script src="assets/js/datos.js"></script>
+  <script src="assets/js/app.js"></script>
+
+  <!-- 5) Alpine.js desde CDN (versión fija). El plugin "intersect" va antes del núcleo. -->
+  <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/intersect@3.14.9/dist/cdn.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.9/dist/cdn.min.js"></script>
+</head>
+
+<body>
+  <a class="saltar" href="#contenido">Saltar al contenido</a>
+
+  <!-- ======================================================================
+       BARRA SUPERIOR · navegación fija, sección activa y progreso de lectura
+       Componente: navegacion (app.js, sección 4)
+       ====================================================================== -->
+  <header class="barra-sitio" x-data="navegacion">
+    <div class="contenedor barra-sitio-interior">
+      <a class="marca" href="#inicio">CASEN 2024<span class="marca-sub"> · Ética de datos</span></a>
+      <nav class="nav" aria-label="Secciones del sitio">
+        <ul class="nav-lista" x-ref="lista">
+          <li><a href="#dataset" :class="{ activo: activa === 'dataset' }">Dataset</a></li>
+          <li><a href="#recorrido" :class="{ activo: activa === 'recorrido' }">Recorrido</a></li>
+          <li><a href="#taller-1" :class="{ activo: activa === 'taller-1' }">Taller 1</a></li>
+          <li><a href="#taller-2" :class="{ activo: activa === 'taller-2' }">Taller 2</a></li>
+          <li><a href="#taller-3" :class="{ activo: activa === 'taller-3' }">Taller 3</a></li>
+          <li><a href="#taller-4" :class="{ activo: activa === 'taller-4' }">Taller 4</a></li>
+          <li><a href="#conclusion" :class="{ activo: activa === 'conclusion' }">Conclusión</a></li>
+        </ul>
+      </nav>
+    </div>
+    <div class="progreso" aria-hidden="true" :style="{ transform: 'scaleX(' + (progreso / 100) + ')' }"></div>
+  </header>
+
+  <main id="contenido">
+
+    <!-- ====================================================================
+         PORTADA
+         ==================================================================== -->
+    <section id="inicio" class="portada" aria-labelledby="titulo-principal">
+      <div class="contenedor">
+        <div class="portada-grid">
+          <div class="portada-texto">
+            <p class="sobretitulo">ETI195 · Ética para Ciencia de Datos y Estadística</p>
+            <h1 id="titulo-principal">Medir la pobreza <em>sin dejar a nadie atrás</em></h1>
+            <p class="entradilla">Durante el semestre usamos la Encuesta CASEN 2024 para predecir la pobreza multidimensional en Chile. En el camino aprendimos que cada decisión técnica —qué datos usar, cómo evaluar un modelo, cómo explicarlo y cómo compartirlo— también es una decisión ética.</p>
+
+            <p class="autores-titulo">Integrantes</p>
+            <ul class="autores">
+              <li>Sergio Andrés Hernández Salgado</li>
+              <li>Marco Antonio Ramírez Gaete</li>
+              <li>Reinaldo Rodrigo Oliva Morales</li>
+              <li>Juan Tomás José Lepivil Vigueras</li>
+            </ul>
+
+            <div class="acciones">
+              <a class="boton boton-primario" href="#dataset">Comenzar el recorrido</a>
+              <a class="boton boton-secundario" href="#conclusion">Ir a la conclusión</a>
+            </div>
+          </div>
+
+          <!-- Matriz de puntos: componente matrizPuntos (app.js, sección 5) -->
+          <figure class="portada-figura" x-data="matrizPuntos">
+            <div class="puntos" role="img"
+                 :aria-label="`Matriz de ${total} puntos; ${destacados} puntos destacados representan a las personas en pobreza multidimensional`">
+              <template x-for="i in total" :key="i">
+                <span class="punto" :class="{ destacado: i > total - destacados }" :style="{ '--i': i }"></span>
+              </template>
+            </div>
+            <figcaption>Cada punto representa cerca de 1.000 personas de la base. Los <strong>37 destacados</strong> viven en situación de pobreza multidimensional (17,6 %).</figcaption>
+          </figure>
+        </div>
+
+        <!-- Cifras clave: componente contador (cuenta desde 0 al aparecer) -->
+        <ul class="cifras">
+          <li class="cifra" x-data="contador(DATOS.dataset.personas)" x-intersect.once="iniciar()">
+            <span class="cifra-valor" x-text="texto">212.471</span>
+            <span class="cifra-etiqueta">personas en la base</span>
+          </li>
+          <li class="cifra" x-data="contador(DATOS.dataset.variables)" x-intersect.once="iniciar()">
+            <span class="cifra-valor" x-text="texto">42</span>
+            <span class="cifra-etiqueta">variables por persona</span>
+          </li>
+          <li class="cifra" x-data="contador(DATOS.dataset.pctPobreza, 1)" x-intersect.once="iniciar()">
+            <span class="cifra-valor"><span x-text="texto">17,6</span> %</span>
+            <span class="cifra-etiqueta">en pobreza multidimensional</span>
+          </li>
+          <li class="cifra">
+            <span class="cifra-valor">4</span>
+            <span class="cifra-etiqueta">talleres, una misma pregunta</span>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         01 · EL DATASET  (requisito 1: por qué lo elegimos y por qué importa)
+         ==================================================================== -->
+    <section id="dataset" class="seccion" aria-labelledby="titulo-dataset">
+      <div class="contenedor">
+        <header class="seccion-cabecera revelar">
+          <p class="kicker"><span>01</span>El dataset</p>
+          <h2 id="titulo-dataset">Por qué elegimos la CASEN 2024</h2>
+        </header>
+
+        <div class="dos-columnas">
+          <div class="prosa revelar">
+            <p>La <strong>Encuesta de Caracterización Socioeconómica Nacional (CASEN)</strong> es el principal instrumento con que Chile conoce las condiciones de vida de sus hogares. La realiza el Ministerio de Desarrollo Social y Familia desde 1990, de forma presencial y a lo largo de todo el país, en hogares escogidos mediante un diseño muestral riguroso. Con ella se estima la pobreza, se identifican carencias, se analizan brechas entre grupos y territorios, y se evalúa la cobertura de los programas sociales.</p>
+            <p>Entre las bases de datos que propuso el curso elegimos la CASEN por tres razones. <strong>Habla de nuestro país</strong>: sus cifras orientan políticas públicas que afectan a millones de personas. <strong>Tiene consecuencias reales</strong>: un modelo entrenado con ella podría influir en quién recibe —o no recibe— una ayuda social. Y <strong>reúne atributos sensibles</strong> —pertenencia a pueblos indígenas, nacionalidad, orientación sexual, identidad de género y discapacidad—, lo que la vuelve ideal para estudiar sesgos, explicabilidad y privacidad con consecuencias concretas.</p>
+            <p>La variable que intentamos predecir, <code>pobreza_multi</code>, no mide ingresos: mide <strong>privaciones simultáneas</strong> en cinco dimensiones de la vida. Por eso, en este problema, un error no es solo un número.</p>
+            <p class="destacado-texto">Un falso negativo es un hogar en pobreza que el sistema no ve, y que podría quedar fuera del apoyo que necesita.</p>
+          </div>
+
+          <aside class="ficha revelar" aria-labelledby="titulo-ficha">
+            <h3 class="ficha-titulo" id="titulo-ficha">Ficha del dataset</h3>
+            <dl>
+              <div><dt>Institución</dt><dd>Ministerio de Desarrollo Social y Familia</dd></div>
+              <div><dt>Cobertura</dt><dd>Todo Chile, zonas urbanas y rurales</dd></div>
+              <div><dt>Versión</dt><dd>CASEN 2024, preprocesada por el equipo docente</dd></div>
+              <div><dt>Registros</dt><dd>212.471 personas</dd></div>
+              <div><dt>Variables</dt><dd>42: vivienda, entorno, educación, trabajo, salud e identidad</dd></div>
+              <div><dt>Variable objetivo</dt><dd><code>pobreza_multi</code>: 17,6 % «Pobre», 82,4 % «No pobre»</dd></div>
+              <div><dt>Datos faltantes</dt><dd>Ninguno</dd></div>
+            </dl>
+          </aside>
+        </div>
+
+        <!-- Simulador: componente simuladorPobreza (app.js, sección 6) -->
+        <figure class="figura revelar" x-data="simuladorPobreza" aria-labelledby="titulo-simulador">
+          <header class="figura-cabecera">
+            <div>
+              <p class="figura-etiqueta">Interactivo · Cómo se mide</p>
+              <h3 class="figura-titulo" id="titulo-simulador">¿Cuándo un hogar está en pobreza multidimensional?</h3>
+              <p class="figura-subtitulo">Marca las carencias de un hogar imaginario. Cada dimensión pesa 20 % y cada uno de sus cuatro indicadores, 5 %.</p>
+            </div>
+          </header>
+
+          <div class="simulador">
+            <div class="sim-tabla" role="group" aria-label="Indicadores por dimensión">
+              <template x-for="(dimension, d) in dimensiones" :key="dimension">
+                <div class="sim-fila">
+                  <span class="sim-dimension" x-text="dimension"></span>
+                  <div class="sim-celdas">
+                    <template x-for="k in porDimension" :key="k">
+                      <button type="button" class="sim-celda"
+                              @click="alternar(indice(d, k - 1))"
+                              :aria-pressed="carencias[indice(d, k - 1)]"
+                              :aria-label="`${dimension}, indicador ${k}`"></button>
+                    </template>
+                  </div>
+                </div>
+              </template>
+            </div>
+
+            <div class="sim-resultado" aria-live="polite">
+              <p class="sim-cifra"><span x-text="porcentaje">0</span><small> %</small></p>
+              <p class="sim-detalle"><span x-text="total">0</span> de 20 indicadores en carencia</p>
+              <div class="medidor" aria-hidden="true">
+                <div class="medidor-relleno" :style="{ width: porcentaje + '%' }"></div>
+                <div class="medidor-umbral" :style="{ left: umbral + '%' }"><span>umbral 20 %</span></div>
+              </div>
+              <p class="estado" :class="{ pobre: esPobre }"
+                 x-text="esPobre ? 'En situación de pobreza multidimensional' : 'No está en situación de pobreza multidimensional'"></p>
+              <p class="sim-mensaje" x-text="mensaje"></p>
+              <div class="sim-acciones">
+                <button type="button" class="chip" @click="ejemplo([0, 5, 10, 15])">Ejemplo: 4 carencias</button>
+                <button type="button" class="chip" @click="ejemplo([0, 5, 10, 15, 18])">Ejemplo: 5 carencias</button>
+                <button type="button" class="boton-texto" @click="limpiar()">Limpiar</button>
+              </div>
+            </div>
+          </div>
+
+          <figcaption class="figura-nota">Regla de la actualización 2024 de la metodología del Ministerio de Desarrollo Social y Familia, descrita en el Taller 2: un hogar está en pobreza multidimensional cuando la suma ponderada de sus carencias supera el 20 %, es decir, con al menos cinco indicadores en carencia. El simulador ilustra la regla; no reproduce los indicadores específicos.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         02 · EL RECORRIDO
+         ==================================================================== -->
+    <section id="recorrido" class="seccion" aria-labelledby="titulo-recorrido">
+      <div class="contenedor">
+        <header class="seccion-cabecera revelar">
+          <p class="kicker"><span>02</span>El método</p>
+          <h2 id="titulo-recorrido">Cuatro talleres, una misma pregunta</h2>
+          <p class="entradilla">Cada taller retomó el anterior: partimos explorando quiénes están en los datos y terminamos preguntándonos cómo compartirlos sin dañar a nadie.</p>
+        </header>
+
+        <ol class="recorrido revelar">
+          <li>
+            <a class="tarjeta-taller" href="#taller-1">
+              <span class="tarjeta-num">Taller 1 · Exploración</span>
+              <span class="tarjeta-pregunta">¿Quiénes están en los datos?</span>
+              <span class="tarjeta-texto">Carga, tipos de datos, valores atípicos y representación de los grupos sensibles.</span>
+              <span class="tarjeta-ir">Ir al taller →</span>
+            </a>
+          </li>
+          <li>
+            <a class="tarjeta-taller" href="#taller-2">
+              <span class="tarjeta-num">Taller 2 · Sesgo y justicia</span>
+              <span class="tarjeta-pregunta">¿El modelo se equivoca igual con todos?</span>
+              <span class="tarjeta-texto">Árbol de decisión, métricas de equidad con Aequitas y mitigación con AIF360.</span>
+              <span class="tarjeta-ir">Ir al taller →</span>
+            </a>
+          </li>
+          <li>
+            <a class="tarjeta-taller" href="#taller-3">
+              <span class="tarjeta-num">Taller 3 · Explicabilidad</span>
+              <span class="tarjeta-pregunta">¿En qué se fija el modelo?</span>
+              <span class="tarjeta-texto">LIME sobre un modelo de lenguaje (BETO) y SHAP sobre un Random Forest.</span>
+              <span class="tarjeta-ir">Ir al taller →</span>
+            </a>
+          </li>
+          <li>
+            <a class="tarjeta-taller" href="#taller-4">
+              <span class="tarjeta-num">Taller 4 · Derechos y privacidad</span>
+              <span class="tarjeta-pregunta">¿Cómo compartir sin exponer?</span>
+              <span class="tarjeta-texto">Enfoque de derechos humanos, Ley 21.719 y datos sintéticos con privacidad diferencial.</span>
+              <span class="tarjeta-ir">Ir al taller →</span>
+            </a>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         03 · TALLER 1 — EXPLORACIÓN
+         ==================================================================== -->
+    <section id="taller-1" class="seccion" aria-labelledby="titulo-taller-1">
+      <div class="contenedor">
+        <header class="seccion-cabecera revelar">
+          <p class="kicker"><span>03</span>Taller 1 — Análisis y exploración de datos</p>
+          <h2 id="titulo-taller-1">¿Quiénes están en los datos?</h2>
+          <p class="entradilla">Antes de entrenar cualquier modelo hay que conocer la base: qué contiene, en qué formato viene y a quién representa.</p>
+        </header>
+
+        <p class="etiqueta-bloque revelar">Qué hicimos</p>
+        <ol class="pasos revelar">
+          <li class="paso">
+            <h3>Cargar y revisar</h3>
+            <p>212.471 personas y 42 variables, sin valores faltantes en ninguna columna.</p>
+          </li>
+          <li class="paso">
+            <h3>Corregir tipos</h3>
+            <p>Los conteos guardados como decimales (dormitorios, baños) pasaron a enteros, y 14 códigos numéricos de categorías pasaron a categóricas, para que un modelo no los lea como cantidades.</p>
+          </li>
+          <li class="paso">
+            <h3>Buscar valores atípicos</h3>
+            <p>Gasto eléctrico de hasta $213.000 (mediana: $36.000), viviendas con 28 dormitorios, hogares de 19 personas y edades de 107 años.</p>
+          </li>
+          <li class="paso">
+            <h3>Identificar atributos sensibles</h3>
+            <p>Demográficos: sexo, edad y zona. Sensibles: pueblo indígena, nacionalidad, orientación sexual, identidad trans, discapacidad y la propia condición de pobreza.</p>
+          </li>
+        </ol>
+
+        <!-- Gráfico: componente representacion (app.js, sección 7) -->
+        <figure class="figura revelar" x-data="representacion" x-intersect.once="visible = true" aria-labelledby="titulo-representacion">
+          <header class="figura-cabecera">
+            <div>
+              <p class="figura-etiqueta">Visualización interactiva · Taller 1</p>
+              <h3 class="figura-titulo" id="titulo-representacion">¿Cuánto pesa cada grupo en la muestra?</h3>
+              <p class="figura-subtitulo">Elige una variable sensible y compara el tamaño de cada grupo con su tasa de pobreza multidimensional.</p>
+            </div>
+            <button type="button" class="boton-texto" @click="verTabla = !verTabla" :aria-pressed="verTabla" x-text="verTabla ? 'Ver gráfico' : 'Ver tabla'">Ver tabla</button>
+          </header>
+
+          <div class="controles">
+            <div>
+              <span class="control-etiqueta" id="etq-t1-variable">Variable</span>
+              <div class="chips" role="group" aria-labelledby="etq-t1-variable">
+                <template x-for="v in variables" :key="v.id">
+                  <button type="button" class="chip" @click="seleccion = v.id" :aria-pressed="seleccion === v.id" x-text="v.nombre"></button>
+                </template>
+              </div>
+            </div>
+            <div>
+              <span class="control-etiqueta" id="etq-t1-medida">Medida</span>
+              <div class="segmentado" role="group" aria-labelledby="etq-t1-medida">
+                <button type="button" @click="medida = 'muestra'" :aria-pressed="medida === 'muestra'">% de la muestra</button>
+                <button type="button" @click="medida = 'pobreza'" :aria-pressed="medida === 'pobreza'">% en pobreza</button>
+              </div>
+            </div>
+          </div>
+
+          <div x-show="!verTabla">
+            <div class="grafico" :class="{ 'con-referencia': medida === 'pobreza' }" x-ref="marco" @mouseleave="ocultarTip()">
+              <div class="barras">
+                <template x-for="(c, i) in variable.categorias" :key="i">
+                  <div class="fila-barra">
+                    <span class="fila-etiqueta" x-text="c.nombre"></span>
+                    <div class="fila-pista">
+                      <div class="fila-escala" tabindex="0" role="img" :aria-label="`${c.nombre}: ${etiqueta(c)}`"
+                           @mouseenter="tooltip($event, c)" @focus="tooltip($event, c)" @blur="ocultarTip()">
+                        <div class="barra" data-ancla :style="{ width: ancho(c) + '%' }"></div>
+                        <span class="barra-valor" :style="{ left: ancho(c) + '%' }" x-text="etiqueta(c)"></span>
+                        <span class="linea-referencia" x-show="medida === 'pobreza'" :style="{ left: anchoPromedio + '%' }"></span>
+                        <span class="linea-referencia-etiqueta" x-show="medida === 'pobreza' && i === 0" :style="{ left: anchoPromedio + '%' }">Promedio 17,6 %</span>
+                      </div>
+                    </div>
+                  </div>
+                </template>
+              </div>
+              <div class="tooltip" x-show="tip.visible" x-cloak aria-hidden="true" :style="{ left: tip.x + 'px', top: tip.y + 'px' }">
+                <strong x-text="tip.valor"></strong><span x-text="tip.titulo"></span><span class="tooltip-detalle" x-text="tip.detalle"></span>
+              </div>
+            </div>
+            <p class="figura-dato" x-text="variable.nota"></p>
+          </div>
+
+          <div class="tabla-scroll" x-show="verTabla" x-cloak>
+            <table class="tabla-datos">
+              <caption x-text="`${variable.nombre}: personas y pobreza multidimensional por grupo`"></caption>
+              <thead>
+                <tr><th scope="col">Grupo</th><th scope="col" class="num">Personas</th><th scope="col" class="num">% de la muestra</th><th scope="col" class="num">% en pobreza</th></tr>
+              </thead>
+              <tbody>
+                <template x-for="c in variable.categorias" :key="c.nombre">
+                  <tr>
+                    <td x-text="c.nombre"></td>
+                    <td class="num" x-text="Formato.numero(c.n)"></td>
+                    <td class="num" x-text="Formato.pct(pctMuestra(c), pctMuestra(c) < 1 ? 2 : 1)"></td>
+                    <td class="num" x-text="Formato.pct(c.pobreza)"></td>
+                  </tr>
+                </template>
+              </tbody>
+            </table>
+          </div>
+
+          <figcaption class="figura-nota">Fuente: base CASEN 2024 preprocesada (n = 212.471). Conteos del Taller 1 (celda 19) y tasas de pobreza del Taller 4 (celda 7). En «% en pobreza», la línea vertical marca el promedio de la base.</figcaption>
+          <details class="figura-original">
+            <summary>Ver figura original del notebook</summary>
+            <img src="assets/img/t1_celda20_orientacion_sexual.png" width="984" height="484" loading="lazy"
+                 alt="Gráfico de barras del Taller 1: distribución por orientación sexual, con 97,58 % de personas heterosexuales.">
+          </details>
+        </figure>
+
+        <div class="dos-columnas" style="margin-top: 2.5rem">
+          <div class="hallazgo revelar" style="margin-top: 0">
+            <p class="hallazgo-etiqueta">Qué encontramos</p>
+            <p><strong>El desbalance refleja la composición del país, pero tiene consecuencias.</strong> Un modelo entrenado con estos datos aprende sobre todo del grupo mayoritario y puede fallar justo con las minorías: es la «paradoja de la exactitud». Buolamwini y Gebru (2018) mostraron cómo la falta de representación produce sistemas que discriminan, y Barocas y Selbst (2016) advierten que los algoritmos heredan las desventajas de los datos y les dan una apariencia de neutralidad matemática.</p>
+          </div>
+          <div class="prosa revelar">
+            <p class="etiqueta-bloque">Cuidado con las intersecciones</p>
+            <p>Al cruzar sexo y orientación sexual, algunos subgrupos quedan con tan pocos casos que aparecen «patrones» engañosos: por ejemplo, una tasa de analfabetismo de 0 % en mujeres bisexuales y lesbianas, o una mucho más alta en hombres que no saben su orientación. No es una relación real, sino falta de datos.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         04 · TALLER 2 — SESGOS, JUSTICIA Y DISCRIMINACIÓN
+         ==================================================================== -->
+    <section id="taller-2" class="seccion" aria-labelledby="titulo-taller-2">
+      <div class="contenedor">
+        <header class="seccion-cabecera revelar">
+          <p class="kicker"><span>04</span>Taller 2 — Sesgos, justicia y discriminación</p>
+          <h2 id="titulo-taller-2">¿El modelo se equivoca igual con todos?</h2>
+          <p class="entradilla">Entrenamos un clasificador de pobreza multidimensional y nos preguntamos no solo cuánto acierta, sino a quién perjudican sus errores.</p>
+        </header>
+
+        <p class="etiqueta-bloque revelar">Qué hicimos</p>
+        <ol class="pasos revelar">
+          <li class="paso">
+            <h3>Preparar los datos</h3>
+            <p>Imputación preventiva (mediana y moda, calculadas solo con entrenamiento), recorte de extremos con el rango intercuartílico, normalización MinMax y codificación one-hot: 141 columnas.</p>
+          </li>
+          <li class="paso">
+            <h3>Entrenar</h3>
+            <p>División estratificada 80/20 y un árbol de decisión con <code>class_weight="balanced"</code>, porque solo el 17,6 % de las personas es pobre.</p>
+          </li>
+          <li class="paso">
+            <h3>Medir la equidad</h3>
+            <p>Con Aequitas comparamos las tasas de error entre grupos de pertenencia indígena y de dificultad para el cuidado personal.</p>
+          </li>
+          <li class="paso">
+            <h3>Mitigar</h3>
+            <p>Probamos dos técnicas de AIF360: post-procesamiento <em>Equalized Odds</em> y <em>Reweighing</em> de los datos de entrenamiento.</p>
+          </li>
+        </ol>
+
+        <!-- Matriz de confusión: componente matrizConfusion (app.js, sección 8) -->
+        <figure class="figura revelar" x-data="matrizConfusion" aria-labelledby="titulo-matriz">
+          <header class="figura-cabecera">
+            <div>
+              <p class="figura-etiqueta">Visualización interactiva · Taller 2</p>
+              <h3 class="figura-titulo" id="titulo-matriz">93,6 % de aciertos… y 1.403 personas invisibles</h3>
+              <p class="figura-subtitulo">Matriz de confusión del árbol de decisión sobre 42.495 personas de prueba. Pasa el cursor o toca una celda.</p>
+            </div>
+          </header>
+
+          <div class="matriz-contenedor">
+            <div class="matriz" role="group" aria-label="Matriz de confusión: filas = clase real, columnas = predicción">
+              <span></span>
+              <span class="matriz-eje columna">Predice «No pobre»</span>
+              <span class="matriz-eje columna">Predice «Pobre»</span>
+
+              <span class="matriz-eje fila">Real:<br>No pobre</span>
+              <template x-for="c in celdas.slice(0, 2)" :key="c.id">
+                <button type="button" class="matriz-celda" :class="{ oscura: intensidad(c) > 0.55 }" :style="{ '--t': intensidad(c) }"
+                        @mouseenter="activa = c.id" @focus="activa = c.id" @click="activa = c.id" :aria-pressed="activa === c.id">
+                  <span class="matriz-n" x-text="Formato.numero(c.n)"></span>
+                  <span class="matriz-t" x-text="c.titulo"></span>
+                </button>
+              </template>
+
+              <span class="matriz-eje fila">Real:<br>Pobre</span>
+              <template x-for="c in celdas.slice(2)" :key="c.id">
+                <button type="button" class="matriz-celda" :class="{ oscura: intensidad(c) > 0.55 }" :style="{ '--t': intensidad(c) }"
+                        @mouseenter="activa = c.id" @focus="activa = c.id" @click="activa = c.id" :aria-pressed="activa === c.id">
+                  <span class="matriz-n" x-text="Formato.numero(c.n)"></span>
+                  <span class="matriz-t" x-text="c.titulo"></span>
+                </button>
+              </template>
+            </div>
+
+            <div class="matriz-detalle" aria-live="polite">
+              <p class="detalle-n" x-text="Formato.numero(detalle.n)"></p>
+              <p class="detalle-titulo" x-text="detalle.titulo"></p>
+              <p class="detalle-texto" x-text="detalle.texto"></p>
+              <ul class="mini-cifras">
+                <li><strong>93,6 %</strong> accuracy (aciertos totales)</li>
+                <li><strong>81 %</strong> de las personas pobres detectadas (recall)</li>
+                <li><strong>82 %</strong> de las alertas «pobre» son correctas (precisión)</li>
+              </ul>
+            </div>
+          </div>
+
+          <figcaption class="figura-nota">Fuente: Taller 2, celdas 18 a 22. El tono de azul es proporcional a la cantidad de personas en cada celda.</figcaption>
+          <details class="figura-original">
+            <summary>Ver figura original del notebook</summary>
+            <img src="assets/img/t2_celda20_matriz_confusion.png" width="581" height="456" loading="lazy"
+                 alt="Matriz de confusión del árbol de decisión: 33.674 verdaderos negativos, 1.322 falsos positivos, 1.403 falsos negativos y 6.096 verdaderos positivos.">
+          </details>
+        </figure>
+
+        <!-- Errores por grupo: componente erroresGrupo (app.js, sección 8) -->
+        <figure class="figura revelar" x-data="erroresGrupo" x-intersect.once="visible = true" aria-labelledby="titulo-errores">
+          <header class="figura-cabecera">
+            <div>
+              <p class="figura-etiqueta">Visualización interactiva · Taller 2</p>
+              <h3 class="figura-titulo" id="titulo-errores">¿A quién no detecta el modelo?</h3>
+              <p class="figura-subtitulo"><strong>FNR</strong>: de cada 100 personas pobres, cuántas no detecta. <strong>FDR</strong>: de cada 100 alertas de «pobre», cuántas son erróneas. Calculadas con Aequitas por grupo.</p>
+            </div>
+            <button type="button" class="boton-texto" @click="verTabla = !verTabla" :aria-pressed="verTabla" x-text="verTabla ? 'Ver gráfico' : 'Ver tabla'">Ver tabla</button>
+          </header>
+
+          <div class="controles">
+            <div>
+              <span class="control-etiqueta" id="etq-t2-atributo">Atributo sensible</span>
+              <div class="segmentado" role="group" aria-labelledby="etq-t2-atributo">
+                <template x-for="a in atributos" :key="a.id">
+                  <button type="button" @click="seleccion = a.id" :aria-pressed="seleccion === a.id" x-text="a.nombre"></button>
+                </template>
+              </div>
+            </div>
+          </div>
+
+          <div x-show="!verTabla">
+            <ul class="leyenda">
+              <li><span class="muestra"></span>FNR · pobres no detectados</li>
+              <li><span class="muestra serie-2"></span>FDR · alertas erróneas</li>
+            </ul>
+            <div class="grafico" x-ref="marco" @mouseleave="ocultarTip()">
+              <div class="barras">
+                <template x-for="(g, i) in atributo.grupos" :key="i">
+                  <div class="fila-barra">
+                    <span class="fila-etiqueta"><span x-text="g.nombre"></span><small x-text="`${Formato.numero(g.n)} personas`"></small></span>
+                    <div class="fila-pista doble">
+                      <div class="fila-escala" tabindex="0" role="img" :aria-label="`${g.nombre}, FNR: ${Formato.pct(g.fnr)}`"
+                           @mouseenter="mostrarTip($event, `${g.nombre} · pobres no detectados`, Formato.pct(g.fnr), `${Formato.numero(g.n)} personas en el grupo`)"
+                           @focus="mostrarTip($event, `${g.nombre} · pobres no detectados`, Formato.pct(g.fnr), `${Formato.numero(g.n)} personas en el grupo`)" @blur="ocultarTip()">
+                        <div class="barra" data-ancla :style="{ width: ancho(g.fnr) + '%' }"></div>
+                        <span class="barra-valor" :style="{ left: ancho(g.fnr) + '%' }" x-text="Formato.pct(g.fnr)"></span>
+                      </div>
+                      <div class="fila-escala" tabindex="0" role="img" :aria-label="`${g.nombre}, FDR: ${Formato.pct(g.fdr)}`"
+                           @mouseenter="mostrarTip($event, `${g.nombre} · alertas erróneas`, Formato.pct(g.fdr), `${Formato.numero(g.n)} personas en el grupo`)"
+                           @focus="mostrarTip($event, `${g.nombre} · alertas erróneas`, Formato.pct(g.fdr), `${Formato.numero(g.n)} personas en el grupo`)" @blur="ocultarTip()">
+                        <div class="barra serie-2" data-ancla :style="{ width: ancho(g.fdr) + '%' }"></div>
+                        <span class="barra-valor" :style="{ left: ancho(g.fdr) + '%' }" x-text="Formato.pct(g.fdr)"></span>
+                      </div>
+                    </div>
+                  </div>
+                </template>
+              </div>
+              <div class="tooltip" x-show="tip.visible" x-cloak aria-hidden="true" :style="{ left: tip.x + 'px', top: tip.y + 'px' }">
+                <strong x-text="tip.valor"></strong><span x-text="tip.titulo"></span><span class="tooltip-detalle" x-text="tip.detalle"></span>
+              </div>
+            </div>
+            <p class="figura-dato"><strong>Disparidad de FNR: <span x-text="Formato.decimal(atributo.disparidadFnr, 2)"></span>×</strong> — <span x-text="frase"></span></p>
+          </div>
+
+          <div class="tabla-scroll" x-show="verTabla" x-cloak>
+            <table class="tabla-datos">
+              <caption x-text="`${atributo.nombre}: tasas de error por grupo (grupo de referencia: ${atributo.referencia})`"></caption>
+              <thead>
+                <tr><th scope="col">Grupo</th><th scope="col" class="num">Personas</th><th scope="col" class="num">FNR</th><th scope="col" class="num">FDR</th></tr>
+              </thead>
+              <tbody>
+                <template x-for="g in atributo.grupos" :key="g.nombre">
+                  <tr><td x-text="g.nombre"></td><td class="num" x-text="Formato.numero(g.n)"></td><td class="num" x-text="Formato.pct(g.fnr)"></td><td class="num" x-text="Formato.pct(g.fdr)"></td></tr>
+                </template>
+              </tbody>
+            </table>
+          </div>
+
+          <figcaption class="figura-nota">Fuente: Taller 2, celda 26 (conjunto de prueba, n = 42.495). Disparidad = tasa del grupo ÷ tasa del grupo de referencia.</figcaption>
+          <details class="figura-original">
+            <summary>Ver figura original del notebook</summary>
+            <img src="assets/img/t2_celda27_errores_por_grupo.png" width="1089" height="435" loading="lazy"
+                 alt="Gráfico del Taller 2: FNR y FDR del árbol por pertenencia indígena y por dificultad de cuidado personal.">
+          </details>
+        </figure>
+
+        <div class="prosa revelar" style="margin-top: 2.5rem">
+          <p class="etiqueta-bloque">Qué significa</p>
+          <p>Por pertenencia indígena, el modelo se equivoca casi igual con ambos grupos (FNR de 17,7 % y 18,9 %). Con la dificultad para el cuidado personal ocurre algo grave: <strong>el 31,1 % de las personas pobres con dificultades no es detectado, contra el 17,9 % del resto</strong>, un 73 % más. Si el modelo se usara para asignar beneficios, quienes más los necesitan tendrían más probabilidad de quedar fuera. La disparidad se relaciona con que hay muchos menos datos de este grupo: 1.645 personas en prueba, frente a 40.850.</p>
+        </div>
+
+        <!-- Mitigación: componente mitigacion (app.js, sección 8) -->
+        <figure class="figura revelar" x-data="mitigacion" x-intersect.once="visible = true" aria-labelledby="titulo-mitigacion">
+          <header class="figura-cabecera">
+            <div>
+              <p class="figura-etiqueta">Visualización interactiva · Taller 2</p>
+              <h3 class="figura-titulo" id="titulo-mitigacion">Mitigar, ¿a qué costo?</h3>
+              <p class="figura-subtitulo">Equalized Odds modifica predicciones para igualar los errores entre grupos. Compara las tasas antes y después, en la mitad de evaluación del conjunto de prueba (n = 21.248).</p>
+            </div>
+            <button type="button" class="boton-texto" @click="verTabla = !verTabla" :aria-pressed="verTabla" x-text="verTabla ? 'Ver gráfico' : 'Ver tabla'">Ver tabla</button>
+          </header>
+
+          <div class="controles">
+            <div>
+              <span class="control-etiqueta" id="etq-mit-atributo">Atributo</span>
+              <div class="segmentado" role="group" aria-labelledby="etq-mit-atributo">
+                <button type="button" @click="atributo = 'cuidado_personal'" :aria-pressed="atributo === 'cuidado_personal'">Cuidado personal</button>
+                <button type="button" @click="atributo = 'pertenencia_indigena'" :aria-pressed="atributo === 'pertenencia_indigena'">Pueblo indígena</button>
+              </div>
+            </div>
+            <div>
+              <span class="control-etiqueta" id="etq-mit-metrica">Tasa de error</span>
+              <div class="segmentado" role="group" aria-labelledby="etq-mit-metrica">
+                <template x-for="m in metricas" :key="m.id">
+                  <button type="button" @click="metrica = m.id" :aria-pressed="metrica === m.id" :title="m.largo" x-text="m.nombre"></button>
+                </template>
+              </div>
+            </div>
+            <div>
+              <span class="control-etiqueta" id="etq-mit-etapa">Etapa</span>
+              <div class="segmentado" role="group" aria-labelledby="etq-mit-etapa">
+                <button type="button" @click="etapa = 'antes'" :aria-pressed="etapa === 'antes'">Antes</button>
+                <button type="button" @click="etapa = 'despues'" :aria-pressed="etapa === 'despues'">Después</button>
+              </div>
+            </div>
+          </div>
+
+          <div x-show="!verTabla">
+            <ul class="leyenda">
+              <li><span class="muestra" :class="{ 'estado-b': etapa === 'despues' }"></span><span x-text="`${metricaActual.largo} (${metricaActual.nombre}), ${etapa === 'antes' ? 'antes' : 'después'}`"></span></li>
+              <li><span class="muestra-linea"></span><span x-text="etapa === 'antes' ? 'Valor después de mitigar' : 'Valor antes de mitigar'"></span></li>
+            </ul>
+            <div class="grafico" x-ref="marco" @mouseleave="ocultarTip()">
+              <div class="barras">
+                <template x-for="(g, i) in actual.grupos" :key="i">
+                  <div class="fila-barra">
+                    <span class="fila-etiqueta"><span x-text="g.nombre"></span><small x-text="`${Formato.numero(g.n)} personas`"></small></span>
+                    <div class="fila-pista">
+                      <div class="fila-escala" tabindex="0" role="img" :aria-label="`${g.nombre}: ${Formato.pct(g.antes[metrica])} antes, ${Formato.pct(g.despues[metrica])} después`"
+                           @mouseenter="tooltip($event, g)" @focus="tooltip($event, g)" @blur="ocultarTip()">
+                        <div class="barra" :class="{ 'estado-b': etapa === 'despues' }" data-ancla :style="{ width: ancho(g) + '%' }"></div>
+                        <span class="marca-fantasma" :style="{ left: ancho(g, otraEtapa) + '%' }"></span>
+                        <span class="barra-valor" :style="{ left: Math.max(ancho(g), ancho(g, otraEtapa)) + '%' }" x-text="Formato.pct(valor(g))"></span>
+                      </div>
+                    </div>
+                  </div>
+                </template>
+              </div>
+              <div class="tooltip" x-show="tip.visible" x-cloak aria-hidden="true" :style="{ left: tip.x + 'px', top: tip.y + 'px' }">
+                <strong x-text="tip.valor"></strong><span x-text="tip.titulo"></span><span class="tooltip-detalle" x-text="tip.detalle"></span>
+              </div>
+            </div>
+
+            <div class="comparacion-cifras">
+              <div>
+                <span class="valor"><span x-text="Formato.pct(actual.accuracy.antes)"></span><span class="flecha-cambio">→</span><span x-text="Formato.pct(actual.accuracy.despues)"></span></span>
+                <span class="rotulo">Accuracy antes → después</span>
+              </div>
+              <div>
+                <span class="valor" x-text="Formato.numero(actual.cambios)"></span>
+                <span class="rotulo">predicciones modificadas por el algoritmo</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="tabla-scroll" x-show="verTabla" x-cloak>
+            <table class="tabla-datos">
+              <caption x-text="`${actual.nombre}: tasas de error antes y después de Equalized Odds`"></caption>
+              <thead>
+                <tr><th scope="col">Grupo</th><th scope="col" class="num">FNR antes</th><th scope="col" class="num">FNR después</th><th scope="col" class="num">FPR antes</th><th scope="col" class="num">FPR después</th><th scope="col" class="num">FDR antes</th><th scope="col" class="num">FDR después</th></tr>
+              </thead>
+              <tbody>
+                <template x-for="g in actual.grupos" :key="g.nombre">
+                  <tr>
+                    <td x-text="g.nombre"></td>
+                    <td class="num" x-text="Formato.pct(g.antes.fnr)"></td><td class="num" x-text="Formato.pct(g.despues.fnr)"></td>
+                    <td class="num" x-text="Formato.pct(g.antes.fpr)"></td><td class="num" x-text="Formato.pct(g.despues.fpr)"></td>
+                    <td class="num" x-text="Formato.pct(g.antes.fdr)"></td><td class="num" x-text="Formato.pct(g.despues.fdr)"></td>
+                  </tr>
+                </template>
+              </tbody>
+            </table>
+          </div>
+
+          <figcaption class="figura-nota">Fuente: Taller 2, celdas 30 a 32 (AIF360, <code>EqOddsPostprocessing</code>, calibrado con la otra mitad del conjunto de prueba). La línea fina marca el valor de la otra etapa.</figcaption>
+        </figure>
+
+        <div class="dos-columnas" style="margin-top: 2.5rem">
+          <div class="prosa revelar">
+            <p class="etiqueta-bloque">Igualar hacia abajo</p>
+            <p>Para la dificultad de cuidado personal, Equalized Odds logró casi una paridad total, pero <strong>«hacia abajo»</strong>: no mejoró la detección del grupo vulnerable (30,3 % de falsos negativos), sino que empeoró la del otro grupo, de 16,8 % a 30,3 %. El accuracy cayó de 93,7 % a 87,3 % y muchas más personas reales quedarían fuera de las ayudas. Con pertenencia indígena casi no ayudó e incluso empeoró levemente las métricas.</p>
+            <p><strong>Reweighing</strong> reasigna pesos a los datos de entrenamiento. Logró una paridad estadística perfecta en el entrenamiento con un accuracy casi igual, pero en las predicciones mejoró unas métricas y empeoró otras.</p>
+          </div>
+          <div class="revelar" x-data="{ filas: DATOS.taller2.reweighing.filas }">
+            <div class="tabla-scroll">
+              <table class="tabla-datos">
+                <caption>Reweighing para dificultad de cuidado personal (Taller 2, celdas 36 a 41)</caption>
+                <thead>
+                  <tr><th scope="col">Métrica</th><th scope="col" class="num">Original</th><th scope="col" class="num">Reweighing</th></tr>
+                </thead>
+                <tbody>
+                  <template x-for="f in filas" :key="f.metrica">
+                    <tr>
+                      <td x-text="f.metrica"></td>
+                      <td class="num" x-text="f.original"></td>
+                      <td class="num">
+                        <span x-text="f.reweighing"></span>
+                        <span class="marca-peor" x-show="f.peor"> ▲ peor</span>
+                        <span class="marca-mejor" x-show="f.mejor"> ▼ mejor</span>
+                      </td>
+                    </tr>
+                  </template>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="hallazgo revelar">
+          <p class="hallazgo-etiqueta">Qué encontramos</p>
+          <p><strong>La paridad matemática a ciegas no siempre es justa.</strong> Un accuracy alto puede esconder que los errores recaen sobre los más vulnerables, y corregir una métrica de equidad puede empeorar otra o el desempeño para todos.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         05 · TALLER 3 — MODELOS INTERPRETABLES Y XAI
+         ==================================================================== -->
+    <section id="taller-3" class="seccion" aria-labelledby="titulo-taller-3">
+      <div class="contenedor">
+        <header class="seccion-cabecera revelar">
+          <p class="kicker"><span>05</span>Taller 3 — Modelos interpretables y xAI</p>
+          <h2 id="titulo-taller-3">¿En qué se fija el modelo?</h2>
+          <p class="entradilla">Un modelo puede acertar por malas razones. Usamos técnicas de inteligencia artificial explicable para mirar dentro de dos modelos: uno de lenguaje y otro de pobreza.</p>
+        </header>
+
+        <ul class="conceptos revelar">
+          <li class="concepto">
+            <h3>XAI</h3>
+            <p>Inteligencia artificial explicable: técnicas para entender por qué un modelo de «caja negra» toma una decisión y revisar si lo hace por buenas razones (Molnar, 2022).</p>
+          </li>
+          <li class="concepto">
+            <h3>LIME</h3>
+            <p>Explica una predicción a la vez: quita palabras de la frase, observa cómo cambia la respuesta y estima cuánto pesó cada una (Ribeiro et al., 2016).</p>
+          </li>
+          <li class="concepto">
+            <h3>SHAP</h3>
+            <p>Reparte la predicción entre las variables con valores de Shapley. Permite mirar un caso individual o el comportamiento global del modelo (Lundberg y Lee, 2017).</p>
+          </li>
+        </ul>
+
+        <h3 class="subtitulo revelar">LIME: cuando «vulnerabilidad» suena a mala noticia</h3>
+        <div class="prosa revelar">
+          <p>Imaginamos una institución que clasifica sus mensajes a los hogares como negativos, neutros o positivos usando <strong>BETO</strong>, un modelo de lenguaje en español entrenado para detectar sentimiento en tuits. Los mensajes negativos —un rechazo— se derivan a un equipo que llama al hogar para explicarle cómo apelar. Si el modelo se equivoca, un hogar rechazado no recibe ayuda para apelar, o una buena noticia se trata como mala. Probamos 14 frases en cinco familias, con la hipótesis de que <strong>el modelo se fija más en el tono que en lo que el mensaje significa para el hogar</strong>.</p>
+        </div>
+
+        <!-- Explorador de frases: componente exploradorFrases (app.js, sección 9) -->
+        <figure class="figura revelar" x-data="exploradorFrases" aria-labelledby="titulo-frases">
+          <header class="figura-cabecera">
+            <div>
+              <p class="figura-etiqueta">Visualización interactiva · Taller 3</p>
+              <h3 class="figura-titulo" id="titulo-frases">Explora las 14 frases</h3>
+              <p class="figura-subtitulo">Elige una frase para ver qué predijo BETO y, en las 8 que analizamos con LIME, qué palabras pesaron en la decisión.</p>
+            </div>
+          </header>
+
+          <div class="explorador">
+            <div class="lista-frases" role="group" aria-label="Frases analizadas" x-ref="lista">
+              <template x-for="familia in familias" :key="familia.id">
+                <div class="familia">
+                  <p class="familia-nombre" x-text="familia.nombre"></p>
+                  <p class="familia-pregunta" x-text="familia.pregunta"></p>
+                  <template x-for="f in frasesDe(familia.id)" :key="f.id">
+                    <button type="button" class="boton-frase" @click="seleccion = f.id" :aria-pressed="seleccion === f.id">
+                      <span class="icono-estado" :class="esError(f) ? 'no' : 'si'" role="img" :aria-label="esError(f) ? 'Error para el hogar' : 'Correcta para el hogar'">
+                        <svg x-show="!esError(f)" width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 6.3l2.3 2.3 4.7-5.1"/></svg>
+                        <svg x-show="esError(f)" width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M3 3l6 6M9 3l-6 6"/></svg>
+                      </span>
+                      <span x-text="f.texto"></span>
+                    </button>
+                  </template>
+                </div>
+              </template>
+            </div>
+
+            <div class="detalle-frase" aria-live="polite">
+              <p class="frase-resaltada">
+                <template x-for="(p, i) in piezas" :key="`${seleccion}-${i}`"><span :class="{ 'pieza-peso': p.peso !== null }" :style="estiloPieza(p)" :title="p.peso !== null ? `Peso LIME: ${Formato.conSigno(p.peso)}` : null" x-text="p.texto"></span></template>
+              </p>
+
+              <ul class="etiquetas">
+                <li class="etiqueta">Predicción <strong x-text="frase.prediccion"></strong></li>
+                <li class="etiqueta">Deseada <strong x-text="frase.deseada"></strong></li>
+                <li class="etiqueta">Hipótesis <strong x-text="frase.hipotesis"></strong><span x-text="frase.hipotesis === frase.prediccion ? '· se cumplió' : '· no se cumplió'"></span></li>
+                <li class="etiqueta">
+                  <span class="icono-estado" :class="esError(frase) ? 'no' : 'si'" aria-hidden="true">
+                    <svg x-show="!esError(frase)" width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 6.3l2.3 2.3 4.7-5.1"/></svg>
+                    <svg x-show="esError(frase)" width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M3 3l6 6M9 3l-6 6"/></svg>
+                  </span>
+                  <span x-text="esError(frase) ? 'Error para el hogar' : 'Correcta para el hogar'"></span>
+                </li>
+              </ul>
+
+              <p class="control-etiqueta">Probabilidades de BETO</p>
+              <div class="probabilidades">
+                <template x-for="clase in clases" :key="clase">
+                  <div class="prob-fila" :class="{ predicha: clase === frase.prediccion }">
+                    <span x-text="nombreClase[clase]"></span>
+                    <div class="prob-pista"><div class="prob-relleno" :style="{ width: (frase.probs[clase] * 100) + '%' }"></div></div>
+                    <span class="prob-valor" x-text="Formato.decimal(frase.probs[clase], 3)"></span>
+                  </div>
+                </template>
+              </div>
+
+              <template x-if="frase.lime">
+                <div>
+                  <ul class="leyenda">
+                    <li><span class="muestra"></span><span x-text="`Empuja hacia ${frase.prediccion}`"></span></li>
+                    <li><span class="muestra rojo"></span>Empuja en contra</li>
+                  </ul>
+                  <p class="control-etiqueta">Palabras con más peso (LIME)</p>
+                  <ul class="palabras-clave">
+                    <template x-for="w in palabrasClave" :key="w.palabra">
+                      <li><span x-text="w.palabra"></span><strong x-text="Formato.conSigno(w.peso)"></strong></li>
+                    </template>
+                  </ul>
+                </div>
+              </template>
+              <p class="sin-lime" x-show="!frase.lime">Esta frase no se analizó con LIME: priorizamos las que tuvieron errores para el hogar, las de «tono amable» y las de distinto destinatario.</p>
+            </div>
+          </div>
+
+          <figcaption class="figura-nota">Fuente: Taller 3, celdas 11, 15 y 16. Las frases se muestran tal como las recibió el modelo (sin tildes). Los tres pesos LIME más fuertes de cada frase son los de la tabla del notebook; el resto se leyó de sus gráficos (≈ ±0,01). LIME puede variar levemente entre ejecuciones.</figcaption>
+          <details class="figura-original">
+            <summary>Ver figura original del notebook (frase 9)</summary>
+            <img src="assets/img/t3_celda15_lime_frase9.png" width="790" height="570" loading="lazy"
+                 alt="Gráfico LIME del Taller 3 para la frase 9: la palabra vulnerabilidad aporta +0,80 hacia la clase negativa.">
+          </details>
+        </figure>
+
+        <div class="dos-columnas" style="margin-top: 2.5rem">
+          <div class="prosa revelar">
+            <p class="etiqueta-bloque">Qué encontramos</p>
+            <p><strong>Lee bien los «no».</strong> Los rechazos con tono amable («Nos complace informarle que, lamentablemente…») salieron negativos con más de 99 % de confianza: la hipótesis del tono no se cumplió.</p>
+            <p><strong>Confunde describir una carencia con dar una mala noticia.</strong> «Su hogar pertenece a un grupo de alta vulnerabilidad» salió negativo (0,98), decidido casi por una sola palabra: «vulnerabilidad» (+0,80). En Chile, eso es justamente lo que da acceso a beneficios. Tiene sentido: el modelo aprendió de tuits, donde «pobreza» suele ser una queja.</p>
+            <p><strong>Trata distinto según el destinatario.</strong> El mismo mensaje pierde confianza solo por cambiar una palabra.</p>
+          </div>
+
+          <!-- Familia D: componente graficoDestinatario (app.js, sección 9) -->
+          <figure class="figura revelar" style="margin-top: 0" x-data="graficoDestinatario" x-intersect.once="visible = true" aria-labelledby="titulo-destinatario">
+            <header class="figura-cabecera">
+              <div>
+                <p class="figura-etiqueta">Taller 3 · Familia D</p>
+                <h3 class="figura-titulo" id="titulo-destinatario">Mismo mensaje, distinto destinatario</h3>
+                <p class="figura-subtitulo">Probabilidad de «positivo» que BETO asigna a «Estimada <em>vecina …</em>, su solicitud de apoyo para la vivienda ha sido aprobada».</p>
+              </div>
+            </header>
+            <div class="grafico" x-ref="marco" @mouseleave="ocultarTip()" style="--col-etiqueta: 8.5rem">
+              <div class="barras">
+                <template x-for="(f, i) in filas" :key="f.nombre">
+                  <div class="fila-barra">
+                    <span class="fila-etiqueta" x-text="`«${f.nombre}»`"></span>
+                    <div class="fila-pista">
+                      <div class="fila-escala" tabindex="0" role="img" :aria-label="`${f.nombre}: ${Formato.decimal(f.pos, 3)}`"
+                           @mouseenter="mostrarTip($event, `Estimada ${f.nombre}`, Formato.decimal(f.pos, 3), i === 0 ? 'La mayor confianza (referencia)' : `${Formato.conSigno(f.pos - referencia, 3)} respecto de «vecina chilena»`)"
+                           @focus="mostrarTip($event, `Estimada ${f.nombre}`, Formato.decimal(f.pos, 3), i === 0 ? 'La mayor confianza (referencia)' : `${Formato.conSigno(f.pos - referencia, 3)} respecto de «vecina chilena»`)" @blur="ocultarTip()">
+                        <div class="barra" data-ancla :style="{ width: ancho(f.pos) + '%' }"></div>
+                        <span class="barra-valor" :style="{ left: ancho(f.pos) + '%' }" x-text="i === 0 ? Formato.decimal(f.pos, 2) : `${Formato.decimal(f.pos, 2)} (${Formato.conSigno(f.pos - referencia, 2)})`"></span>
+                      </div>
+                    </div>
+                  </div>
+                </template>
+              </div>
+              <div class="tooltip" x-show="tip.visible" x-cloak aria-hidden="true" :style="{ left: tip.x + 'px', top: tip.y + 'px' }">
+                <strong x-text="tip.valor"></strong><span x-text="tip.titulo"></span><span class="tooltip-detalle" x-text="tip.detalle"></span>
+              </div>
+            </div>
+            <p class="figura-dato">Las cuatro siguen siendo positivas, pero «inmigrante» resta 22 puntos de confianza. LIME muestra que «inmigrante» (−0,14) y «mapuche» (−0,07) empujan en contra, aunque no deberían influir (Dixon et al., 2018).</p>
+            <figcaption class="figura-nota">Fuente: Taller 3, celda 12.</figcaption>
+          </figure>
+        </div>
+
+        <div class="hallazgo revelar">
+          <p class="hallazgo-etiqueta">Conclusión de la parte 1</p>
+          <p>BETO funciona bien con rechazos claros, pero <strong>no sirve para este uso</strong>: confunde el lenguaje normal de la política social con algo negativo. Haría falta un modelo entrenado con mensajes administrativos reales y revisión humana. LIME, además, es una aproximación que puede variar entre ejecuciones (Slack et al., 2020): la usamos para explorar, no como prueba definitiva.</p>
+        </div>
+
+        <h3 class="subtitulo revelar">SHAP: qué pesa al predecir la pobreza</h3>
+        <div class="dos-columnas">
+          <div class="prosa revelar">
+            <p>Con el mismo preprocesamiento del Taller 2 entrenamos un <strong>Random Forest</strong> de 100 árboles, con profundidad máxima 20, hojas de al menos 5 personas y clases balanceadas. Obtuvo un accuracy de <strong>83,2 %</strong>: detecta al <strong>78,5 %</strong> de las personas pobres, pero casi la mitad de sus alertas son erróneas (precisión de 51,6 %).</p>
+            <p>¿Por qué elegir un modelo con menos accuracy que el árbol del Taller 2? Porque descubrimos una <strong>filtración de información</strong>: el <strong>87,6 %</strong> de las personas del conjunto de prueba tiene un «gemelo» con un perfil de hogar idéntico en el entrenamiento. La base está a nivel de persona, pero la pobreza se define por hogar: los modelos muy profundos memorizan hogares (Kaufman et al., 2012). Un bosque acotado da una estimación más honesta para hogares nuevos.</p>
+          </div>
+          <div class="revelar" x-data="{ filas: DATOS.taller3.randomForest.comparacion }">
+            <div class="tabla-scroll">
+              <table class="tabla-datos">
+                <caption>Configuraciones del Random Forest (Taller 3, celda 34)</caption>
+                <thead>
+                  <tr><th scope="col">Modelo</th><th scope="col" class="num">Accuracy</th><th scope="col" class="num">Recall</th><th scope="col" class="num">Pobres no detectados</th></tr>
+                </thead>
+                <tbody>
+                  <template x-for="f in filas" :key="f.modelo">
+                    <tr :class="{ destacada: f.elegido }">
+                      <td x-text="f.modelo"></td>
+                      <td class="num" x-text="Formato.pct(f.accuracy)"></td>
+                      <td class="num" x-text="Formato.pct(f.recall)"></td>
+                      <td class="num" x-text="Formato.numero(f.fn)"></td>
+                    </tr>
+                  </template>
+                </tbody>
+              </table>
+            </div>
+            <p class="figura-dato">El bosque sin balancear parece mejor (94,1 %), pero deja 2.413 hogares pobres sin detectar: acierta en la clase mayoritaria.</p>
+          </div>
+        </div>
+
+        <!-- Importancia SHAP: componente importanciaShap (app.js, sección 9) -->
+        <figure class="figura revelar" x-data="importanciaShap" x-intersect.once="visible = true" aria-labelledby="titulo-shap">
+          <header class="figura-cabecera">
+            <div>
+              <p class="figura-etiqueta">Visualización interactiva · Taller 3</p>
+              <h3 class="figura-titulo" id="titulo-shap">Las variables que más mueven la predicción</h3>
+              <p class="figura-subtitulo">Importancia SHAP media de cada pregunta de la encuesta (suma de sus columnas one-hot) para la clase «Pobre», en una muestra de 300 personas de prueba.</p>
+            </div>
+            <button type="button" class="boton-texto" @click="verTabla = !verTabla" :aria-pressed="verTabla" x-text="verTabla ? 'Ver gráfico' : 'Ver tabla'">Ver tabla</button>
+          </header>
+
+          <div class="controles">
+            <button type="button" class="chip" @click="mostrarSensibles = !mostrarSensibles" :aria-pressed="mostrarSensibles">Mostrar atributos sensibles</button>
+          </div>
+
+          <div x-show="!verTabla">
+            <ul class="leyenda">
+              <li><span class="muestra"></span>Variable de la encuesta (15 más importantes)</li>
+              <li x-show="mostrarSensibles"><span class="muestra serie-2"></span>Atributo sensible (con su puesto de 41)</li>
+            </ul>
+            <div class="grafico" x-ref="marco" @mouseleave="ocultarTip()" style="--col-etiqueta: 13rem">
+              <div class="barras">
+                <template x-for="(v, i) in principales" :key="v.variable">
+                  <div class="fila-barra">
+                    <span class="fila-etiqueta"><span x-text="`${i + 1}. ${v.nombre}`"></span><small x-text="v.variable"></small></span>
+                    <div class="fila-pista">
+                      <div class="fila-escala" tabindex="0" role="img" :aria-label="`${v.nombre}: ${formato(v.valor)}`"
+                           @mouseenter="mostrarTip($event, v.nombre, `≈ ${formato(v.valor)}`, `Puesto ${i + 1} de 41 · variable ${v.variable}`)"
+                           @focus="mostrarTip($event, v.nombre, `≈ ${formato(v.valor)}`, `Puesto ${i + 1} de 41 · variable ${v.variable}`)" @blur="ocultarTip()">
+                        <div class="barra" data-ancla :style="{ width: ancho(v.valor) + '%' }"></div>
+                        <span class="barra-valor" :style="{ left: ancho(v.valor) + '%' }" x-text="formato(v.valor)"></span>
+                      </div>
+                    </div>
+                  </div>
+                </template>
+
+                <template x-if="mostrarSensibles">
+                  <div>
+                    <template x-for="(v, i) in sensibles" :key="v.variable">
+                      <div>
+                        <div class="fila-salto" x-show="hayHueco(i)" aria-hidden="true"><span>⋯</span></div>
+                        <div class="fila-barra">
+                          <span class="fila-etiqueta"><span x-text="`${v.puesto}. ${v.nombre}`"></span><small x-text="v.variable"></small></span>
+                          <div class="fila-pista">
+                            <div class="fila-escala" tabindex="0" role="img" :aria-label="`${v.nombre}: ${formato(v.valor, true)}, puesto ${v.puesto} de 41`"
+                                 @mouseenter="mostrarTip($event, v.nombre, formato(v.valor, true), `Atributo sensible · puesto ${v.puesto} de 41`)"
+                                 @focus="mostrarTip($event, v.nombre, formato(v.valor, true), `Atributo sensible · puesto ${v.puesto} de 41`)" @blur="ocultarTip()">
+                              <div class="barra sensible" data-ancla :style="{ width: ancho(v.valor) + '%' }"></div>
+                              <span class="barra-valor" :style="{ left: ancho(v.valor) + '%' }" x-text="formato(v.valor, true)"></span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </template>
+                  </div>
+                </template>
+              </div>
+              <div class="tooltip" x-show="tip.visible" x-cloak aria-hidden="true" :style="{ left: tip.x + 'px', top: tip.y + 'px' }">
+                <strong x-text="tip.valor"></strong><span x-text="tip.titulo"></span><span class="tooltip-detalle" x-text="tip.detalle"></span>
+              </div>
+            </div>
+          </div>
+
+          <div class="tabla-scroll" x-show="verTabla" x-cloak>
+            <table class="tabla-datos">
+              <caption>Suma de |SHAP| medio por variable original (clase «Pobre»)</caption>
+              <thead>
+                <tr><th scope="col" class="num">Puesto</th><th scope="col">Variable</th><th scope="col">Código</th><th scope="col" class="num">|SHAP| medio</th></tr>
+              </thead>
+              <tbody>
+                <template x-for="(v, i) in principales" :key="v.variable">
+                  <tr><td class="num" x-text="i + 1"></td><td x-text="v.nombre"></td><td><code x-text="v.variable"></code></td><td class="num" x-text="`≈ ${formato(v.valor)}`"></td></tr>
+                </template>
+                <template x-for="v in sensibles" :key="v.variable">
+                  <tr><td class="num" x-text="v.puesto"></td><td x-text="`${v.nombre} (sensible)`"></td><td><code x-text="v.variable"></code></td><td class="num" x-text="formato(v.valor, true)"></td></tr>
+                </template>
+              </tbody>
+            </table>
+          </div>
+
+          <figcaption class="figura-nota">Fuente: Taller 3, celda 42. Los valores de las 15 variables principales se leyeron del gráfico del notebook (≈ ±0,001); los de los atributos sensibles y su puesto son exactos.</figcaption>
+          <details class="figura-original">
+            <summary>Ver figuras originales del notebook (summary plot e importancia agregada)</summary>
+            <div class="imagenes">
+              <img src="assets/img/t3_celda40_shap_summary.png" width="764" height="940" loading="lazy"
+                   alt="SHAP summary plot del Taller 3 para la clase Pobre: tot_per_h y p9 encabezan el ranking.">
+              <img src="assets/img/t3_celda42_shap_agregado.png" width="790" height="590" loading="lazy"
+                   alt="Importancia SHAP agregada por variable original: internet fijo, personas en el hogar y estado de muros encabezan.">
+            </div>
+          </details>
+        </figure>
+
+        <div class="prosa revelar" style="margin-top: 2.5rem">
+          <p class="etiqueta-bloque">Qué significa</p>
+          <p>El modelo decide sobre todo por el <strong>internet fijo</strong>, el <strong>tamaño del hogar</strong>, el <strong>estado de muros y pisos</strong>, la <strong>tenencia de vehículo</strong> y el <strong>entorno</strong>. Internet y vehículo no forman parte del índice: son <em>proxies</em> del nivel socioeconómico. Y como el estado del barrio lo evalúa quien encuesta, aparece un riesgo de discriminación territorial.</p>
+          <p>Los atributos sensibles quedan muy abajo (sexo en el puesto 38 de 41), pero eso <strong>no garantiza equidad</strong>: la información de grupo se cuela a través de variables correlacionadas, como la zona o la vivienda. Ignorar un atributo no vuelve justo a un modelo (<em>fairness through unawareness</em>).</p>
+        </div>
+
+        <!-- Caso local: componente casoLocal (app.js, sección 9) -->
+        <figure class="figura revelar" x-data="casoLocal" x-intersect.once="visible = true" aria-labelledby="titulo-caso">
+          <header class="figura-cabecera">
+            <div>
+              <p class="figura-etiqueta">Visualización interactiva · Taller 3</p>
+              <h3 class="figura-titulo" id="titulo-caso">Un caso: el hogar que el modelo no vio</h3>
+              <p class="figura-subtitulo">Explicación local con SHAP de un falso negativo: cómo cada variable movió la probabilidad de «pobre» desde el promedio del modelo (0,50) hasta 0,24.</p>
+            </div>
+            <button type="button" class="boton-texto" @click="verTabla = !verTabla" :aria-pressed="verTabla" x-text="verTabla ? 'Ver gráfico' : 'Ver tabla'">Ver tabla</button>
+          </header>
+
+          <div class="perfil">
+            <p>Una persona de un <strong>hogar urbano de dos integrantes</strong>, con <strong>dificultad para su cuidado personal</strong> y vivienda en buen estado. Según la CASEN, su hogar está en pobreza multidimensional. <span style="color: var(--tinta-3)">Omitimos otros datos del perfil para no exponer a la persona.</span></p>
+            <div class="perfil-cifra">
+              <strong>0,24</strong>
+              <span>de probabilidad de «pobre»: el modelo la clasifica como <strong>no pobre</strong> y queda fuera.</span>
+            </div>
+          </div>
+
+          <div x-show="!verTabla">
+            <ul class="leyenda">
+              <li><span class="muestra rojo"></span>Empuja hacia «pobre»</li>
+              <li><span class="muestra"></span>Empuja hacia «no pobre»</li>
+              <li><span class="muestra-linea"></span>Umbral de decisión (0,5)</li>
+            </ul>
+            <div class="grafico cascada" :class="{ visible }" x-ref="marco" @mouseleave="ocultarTip()">
+              <div class="cascada-fila extremo">
+                <span class="cascada-etiqueta">Promedio del modelo</span>
+                <div class="cascada-pista">
+                  <template x-for="t in ticks" :key="t"><span class="guia" :class="{ umbral: t === umbral }" :style="{ left: x(t) + '%' }"></span></template>
+                  <span class="cascada-punto" :style="{ left: x(base) + '%' }"></span>
+                </div>
+                <span class="cascada-valor" x-text="Formato.decimal(base, 2)"></span>
+              </div>
+
+              <template x-for="(p, i) in pasos" :key="p.nombre">
+                <div class="cascada-fila" tabindex="0" :aria-label="`${p.nombre}: ${Formato.conSigno(p.valor, 2)}`"
+                     @mouseenter="mostrarTip($event, p.nombre, Formato.conSigno(p.valor, 3), `De ${Formato.decimal(p.desde, 3)} a ${Formato.decimal(p.hasta, 3)}`)"
+                     @focus="mostrarTip($event, p.nombre, Formato.conSigno(p.valor, 3), `De ${Formato.decimal(p.desde, 3)} a ${Formato.decimal(p.hasta, 3)}`)" @blur="ocultarTip()">
+                  <span class="cascada-etiqueta" x-text="p.nombre"></span>
+                  <div class="cascada-pista">
+                    <template x-for="t in ticks" :key="t"><span class="guia" :class="{ umbral: t === umbral }" :style="{ left: x(t) + '%' }"></span></template>
+                    <span class="cascada-barra" data-ancla="centro" :class="p.valor > 0 ? 'sube' : 'baja'"
+                          :style="{ left: izquierda(p) + '%', width: ancho(p) + '%', 'transition-delay': (i * 70) + 'ms' }"></span>
+                  </div>
+                  <span class="cascada-valor" x-text="Formato.conSigno(p.valor, 2)"></span>
+                </div>
+              </template>
+
+              <div class="cascada-fila extremo">
+                <span class="cascada-etiqueta">Predicción para esta persona</span>
+                <div class="cascada-pista">
+                  <template x-for="t in ticks" :key="t"><span class="guia" :class="{ umbral: t === umbral }" :style="{ left: x(t) + '%' }"></span></template>
+                  <span class="cascada-punto" :style="{ left: x(final) + '%' }"></span>
+                </div>
+                <span class="cascada-valor" x-text="Formato.decimal(final, 2)"></span>
+              </div>
+
+              <div class="cascada-eje" aria-hidden="true">
+                <template x-for="t in ticks" :key="t"><span :style="{ left: x(t) + '%' }" x-text="Formato.decimal(t, 1)"></span></template>
+              </div>
+              <div class="tooltip" x-show="tip.visible" x-cloak aria-hidden="true" :style="{ left: tip.x + 'px', top: tip.y + 'px' }">
+                <strong x-text="tip.valor"></strong><span x-text="tip.titulo"></span><span class="tooltip-detalle" x-text="tip.detalle"></span>
+              </div>
+            </div>
+          </div>
+
+          <div class="tabla-scroll" x-show="verTabla" x-cloak>
+            <table class="tabla-datos">
+              <caption>Contribuciones SHAP a la probabilidad de «pobre» de este caso</caption>
+              <thead><tr><th scope="col">Variable</th><th scope="col" class="num">Contribución</th><th scope="col" class="num">Probabilidad acumulada</th></tr></thead>
+              <tbody>
+                <tr><td>Promedio del modelo</td><td class="num">—</td><td class="num" x-text="Formato.decimal(base, 2)"></td></tr>
+                <template x-for="p in pasos" :key="p.nombre">
+                  <tr><td x-text="p.nombre"></td><td class="num" x-text="Formato.conSigno(p.valor, 3)"></td><td class="num" x-text="Formato.decimal(p.hasta, 3)"></td></tr>
+                </template>
+              </tbody>
+            </table>
+          </div>
+
+          <figcaption class="figura-nota">Fuente: Taller 3, celda 43. Las columnas one-hot de una misma pregunta se sumaron (los valores SHAP son aditivos) y los valores se leyeron del gráfico waterfall del notebook (≈ ±0,003).</figcaption>
+          <details class="figura-original">
+            <summary>Ver figura original del notebook</summary>
+            <img src="assets/img/t3_celda43_shap_waterfall.png" width="886" height="675" loading="lazy"
+                 alt="Gráfico waterfall de SHAP del Taller 3: desde 0,5 hasta 0,24, con p9 y tot_per_h como las mayores contribuciones negativas.">
+          </details>
+        </figure>
+
+        <div class="prosa revelar" style="margin-top: 2.5rem">
+          <p>La vivienda en buen estado, el hogar pequeño, el vehículo y el internet «convencieron» al modelo de que esta persona no era pobre, mientras que la carencia que sí pesa en su vida —la dificultad de cuidado personal— influye poco. La mirada <strong>local</strong> permitiría a un trabajador social revisar el caso, y conecta con el Taller 2: las personas con dificultades son justamente las que el modelo más deja fuera.</p>
+        </div>
+
+        <div class="hallazgo revelar">
+          <p class="hallazgo-etiqueta">Qué encontramos</p>
+          <p><strong>Explicar no es justificar.</strong> SHAP y LIME muestran en qué se apoya un modelo, pero no prueban causalidad ni equidad, y pueden dar una falsa sensación de transparencia. SHAP no detectó la filtración por hogares: la encontramos revisando cómo se construyeron los datos. Para decisiones de alto impacto conviene preferir modelos interpretables por diseño (Rudin, 2019).</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         06 · TALLER 4 — DERECHOS HUMANOS Y PRIVACIDAD
+         ==================================================================== -->
+    <section id="taller-4" class="seccion" aria-labelledby="titulo-taller-4">
+      <div class="contenedor">
+        <header class="seccion-cabecera revelar">
+          <p class="kicker"><span>06</span>Taller 4 — Enfoque de derechos humanos y privacidad</p>
+          <h2 id="titulo-taller-4">¿Cómo compartir sin exponer?</h2>
+          <p class="entradilla">Para quienes responden, la CASEN es un registro muy detallado de su vida privada: cuántas personas viven en su casa, en qué estado están sus muros, si son indígenas o migrantes, e incluso su orientación sexual. Lo entregan confiando en que servirá para mejorar sus condiciones, no para clasificarlas.</p>
+        </header>
+
+        <!-- Principios: componente principios (app.js, sección 10) -->
+        <h3 class="subtitulo revelar" style="margin-top: 0">¿Cumple la CASEN con un enfoque de derechos?</h3>
+        <div class="prosa revelar">
+          <p>Evaluamos la encuesta con los seis principios del enfoque de derechos humanos para los datos de la Oficina del Alto Comisionado de la ONU (OHCHR, 2018). Selecciona un principio para ver por qué y qué proponemos.</p>
+        </div>
+        <div class="revelar" x-data="principios" style="margin-top: 1.5rem">
+          <div class="principios" role="group" aria-label="Principios del enfoque de derechos humanos para los datos">
+            <template x-for="(p, i) in lista" :key="p.nombre">
+              <button type="button" class="principio" @click="seleccion = i" :aria-pressed="seleccion === i">
+                <span class="principio-nombre" x-text="p.nombre"></span>
+                <span class="estado-chip">
+                  <span class="icono-estado" :class="p.estado" aria-hidden="true">
+                    <svg x-show="p.estado === 'si'" width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 6.3l2.3 2.3 4.7-5.1"/></svg>
+                    <svg x-show="p.estado === 'parcial'" width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M3 6h6"/></svg>
+                    <svg x-show="p.estado === 'no'" width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M3 3l6 6M9 3l-6 6"/></svg>
+                  </span>
+                  <span x-text="p.etiqueta"></span>
+                </span>
+              </button>
+            </template>
+          </div>
+          <div class="principio-detalle" aria-live="polite">
+            <div>
+              <h4 x-text="`${actual.nombre}: por qué`"></h4>
+              <p x-text="actual.razon"></p>
+            </div>
+            <div>
+              <h4>Qué proponemos</h4>
+              <p x-text="actual.propuesta"></p>
+            </div>
+          </div>
+          <p class="figura-dato">Conclusión: la CASEN cumple solo en parte. Es fuerte en desagregación y transparencia técnica, pero débil en participación y rendición de cuentas. Fuente: Taller 4, celda 11.</p>
+        </div>
+
+        <!-- Marco legal -->
+        <h3 class="subtitulo revelar">Qué exige la ley chilena</h3>
+        <div class="prosa revelar">
+          <p>Casi todo lo que pregunta la CASEN es un <strong>dato sensible</strong> según la Ley 21.719: origen étnico, situación socioeconómica, salud, orientación sexual e identidad de género (art. 2, letra g). La regla general es que solo pueden tratarse con consentimiento expreso (art. 16). Diseñamos nuestra propuesta para cumplir con esta ley, porque es la que regirá.</p>
+        </div>
+
+        <ol class="linea-tiempo revelar" x-data="{ leyes: DATOS.taller4.leyes }" aria-label="Línea de tiempo del marco legal chileno">
+          <template x-for="l in leyes" :key="l.fecha">
+            <li class="hito" :class="{ pendiente: l.pendiente, clave: l.titulo === 'Ley 21.719' }">
+              <span class="hito-fecha" x-text="l.fecha"></span>
+              <span class="hito-titulo" x-text="l.titulo"></span>
+              <span class="hito-texto" x-text="l.texto"></span>
+            </li>
+          </template>
+        </ol>
+
+        <p class="etiqueta-bloque revelar" style="margin-top: 3rem">Nuestra propuesta de recolección, según la Ley 21.719</p>
+        <ol class="metodo revelar" x-data="{ pasos: DATOS.taller4.metodo }">
+          <template x-for="p in pasos" :key="p.titulo">
+            <li>
+              <h4 x-text="p.titulo"></h4>
+              <span class="articulo" x-text="p.articulo"></span>
+              <p x-text="p.texto"></p>
+            </li>
+          </template>
+        </ol>
+
+        <!-- Reidentificación: componente reidentificacion (app.js, sección 10) -->
+        <h3 class="subtitulo revelar">¿Qué tan fácil es reidentificar a alguien?</h3>
+        <div class="prosa revelar">
+          <p>Borrar nombres y direcciones no basta (Sweeney, 2002). Sumamos una a una las variables que alguien podría conocer de un vecino y contamos cuántas personas quedan solas en su grupo, es decir, con una combinación de valores que nadie más comparte.</p>
+        </div>
+
+        <figure class="figura revelar" x-data="reidentificacion" x-intersect.once="visible = true" aria-labelledby="titulo-reid">
+          <header class="figura-cabecera">
+            <div>
+              <p class="figura-etiqueta">Visualización interactiva · Taller 4</p>
+              <h3 class="figura-titulo" id="titulo-reid">Cada variable conocida deja a más personas expuestas</h3>
+              <p class="figura-subtitulo">Mueve el control o toca una columna para sumar variables. Con las 7 del taller, una de cada 45 personas es única.</p>
+            </div>
+          </header>
+
+          <div class="reid">
+            <div>
+              <label class="control-etiqueta" for="deslizador-reid">Variables que conoce quien busca</label>
+              <ul class="reid-variables" aria-hidden="true">
+                <template x-for="(p, i) in pasos" :key="p.variable">
+                  <li :class="{ incluida: i < paso }" x-text="p.etiqueta"></li>
+                </template>
+              </ul>
+              <input id="deslizador-reid" class="deslizador" type="range" min="1" max="7" step="1" x-model.number="paso"
+                     :aria-valuetext="`${paso} variables, hasta ${actual.etiqueta}`">
+              <p class="cifra-grande" x-text="Formato.numero(actual.unicas)">2.771</p>
+              <p class="cifra-grande-etiqueta">personas con una combinación <strong>única</strong> (<span x-text="Formato.pct(pct(actual.unicas), 2)"></span> de la base)</p>
+              <div class="cifras-secundarias">
+                <div><strong x-text="Formato.numero(actual.menos5)"></strong>en grupos de menos de 5 (<span x-text="Formato.pct(pct(actual.menos5), 2)"></span>)</div>
+                <div><strong x-text="Formato.numero(actual.combinaciones)"></strong>combinaciones distintas</div>
+              </div>
+            </div>
+
+            <div>
+              <ul class="leyenda">
+                <li><span class="muestra"></span>Únicas (k = 1)</li>
+                <li><span class="muestra claro"></span>En grupos de 2 a 4 personas</li>
+              </ul>
+              <div class="columnas" role="group" aria-label="Personas en grupos de menos de 5 según la cantidad de variables conocidas">
+                <template x-for="(p, i) in pasos" :key="p.variable">
+                  <button type="button" class="columna" @click="paso = i + 1" :aria-pressed="paso === i + 1"
+                          :aria-label="`${i + 1} variables: ${Formato.numero(p.menos5)} personas en grupos de menos de 5`">
+                    <span class="columna-valor" x-show="paso === i + 1" :style="{ bottom: alto(p.menos5) + '%' }" x-text="Formato.numero(p.menos5)"></span>
+                    <span class="columna-pila">
+                      <span class="columna-segmento claro" :style="{ height: alto(p.menos5 - p.unicas) + '%' }"></span>
+                      <span class="columna-segmento" :style="{ height: alto(p.unicas) + '%' }"></span>
+                    </span>
+                  </button>
+                </template>
+              </div>
+              <div class="columnas-ejes" aria-hidden="true">
+                <template x-for="(p, i) in pasos" :key="p.variable"><span x-text="i + 1"></span></template>
+              </div>
+              <p class="columnas-titulo-eje">Cantidad de variables conocidas</p>
+            </div>
+          </div>
+
+          <figcaption class="figura-nota">Fuente: Taller 4, celda 16 (resultado con las 7 variables: 4.694 personas únicas y 16.057 en grupos de menos de 5). Los pasos intermedios son un cálculo complementario para este sitio, con el mismo método y la misma base (<code>scripts/calcular_datos_sitio.py</code>).</figcaption>
+        </figure>
+
+        <!-- Datos sintéticos -->
+        <h3 class="subtitulo revelar">Datos sintéticos con privacidad diferencial</h3>
+        <div class="prosa revelar">
+          <p>Con DataSynthesizer (Ping et al., 2017) generamos una versión sintética de siete variables: pobreza, sexo, pueblo indígena, nacionalidad, zona, edad y tamaño del hogar. Mezclamos atributos sensibles —los que queremos proteger y analizar— con cuasi-identificadores. Dejamos fuera la orientación sexual y la identidad trans: son grupos tan pequeños que el ruido borraría su información y, además, son los más fáciles de identificar.</p>
+        </div>
+        <ul class="conceptos revelar" style="margin-top: 1.5rem">
+          <li class="concepto">
+            <h4>Modo aleatorio</h4>
+            <p>Genera valores al azar dentro de cada tipo de dato. Protege mucho, pero no sirve para analizar nada.</p>
+          </li>
+          <li class="concepto">
+            <h4>Modo independiente</h4>
+            <p>Copia cada variable por separado, con ruido. Se pierden las relaciones: ya no se vería, por ejemplo, que la pobreza es mayor en zonas rurales.</p>
+          </li>
+          <li class="concepto elegido">
+            <h4>Modo correlacionado <span class="insignia">Elegido</span></h4>
+            <p>Aprende una red bayesiana con las relaciones más importantes y les agrega ruido de privacidad diferencial. Usamos ε = 1 y k = 2.</p>
+          </li>
+        </ul>
+
+        <!-- Presupuesto ε: componente presupuestoEpsilon (app.js, sección 10) -->
+        <figure class="figura revelar" x-data="presupuestoEpsilon" aria-labelledby="titulo-epsilon">
+          <header class="figura-cabecera">
+            <div>
+              <p class="figura-etiqueta">Interactivo · Taller 4</p>
+              <h3 class="figura-titulo" id="titulo-epsilon">El presupuesto de privacidad ε</h3>
+              <p class="figura-subtitulo">Con ε más bajo hay más privacidad, pero también más ruido; con ε más alto ocurre lo contrario (Dwork y Roth, 2014).</p>
+            </div>
+          </header>
+          <div class="epsilon">
+            <div>
+              <span class="control-etiqueta" id="etq-epsilon">Elige un valor de ε</span>
+              <div class="segmentado" role="group" aria-labelledby="etq-epsilon">
+                <template x-for="(o, i) in opciones" :key="o.valor">
+                  <button type="button" @click="seleccion = i" :aria-pressed="seleccion === i" x-text="`ε = ${o.etiqueta}`"></button>
+                </template>
+              </div>
+              <p class="epsilon-resultado" aria-live="polite">
+                <strong x-text="`Privacidad ${actual.privacidad.toLowerCase()}${actual.elegido ? ' · el valor que usamos.' : '.'}`"></strong>
+                <span x-text="actual.resultado"></span>
+              </p>
+            </div>
+            <div>
+              <p class="control-etiqueta">Ilustración: un mismo conteo publicado 36 veces con ruido</p>
+              <div class="ruido" aria-hidden="true">
+                <span class="ruido-real" :style="{ left: x(real) + '%' }"><span>Valor real: 100</span></span>
+                <template x-for="p in puntos" :key="p.id">
+                  <span class="ruido-punto" :style="{ left: x(p.valor) + '%', top: (12 + p.fila * 21) + '%' }"></span>
+                </template>
+              </div>
+              <div class="ruido-eje" aria-hidden="true">
+                <template x-for="t in ticks" :key="t"><span :style="{ left: x(t) + '%' }" x-text="t"></span></template>
+              </div>
+            </div>
+          </div>
+          <figcaption class="figura-nota">Resultados: Taller 4, celdas 18 y 27 (muestra de 30.000 personas). La nube de puntos es una ilustración del mecanismo de Laplace (escala 1/ε), no son datos de la CASEN; los puntos fuera del eje se dibujan en el borde.</figcaption>
+        </figure>
+
+        <!-- Brechas: componente brechasSinteticas (app.js, sección 10) -->
+        <figure class="figura revelar" x-data="brechasSinteticas" x-intersect.once="visible = true" aria-labelledby="titulo-brechas">
+          <header class="figura-cabecera">
+            <div>
+              <p class="figura-etiqueta">Visualización interactiva · Taller 4</p>
+              <h3 class="figura-titulo" id="titulo-brechas">Lo que la privacidad puede borrar</h3>
+              <p class="figura-subtitulo">Porcentaje de personas en pobreza multidimensional por grupo, en los datos originales y en los sintéticos (ε = 1). Cambia de vista para comparar.</p>
+            </div>
+            <button type="button" class="boton-texto" @click="verTabla = !verTabla" :aria-pressed="verTabla" x-text="verTabla ? 'Ver gráfico' : 'Ver tabla'">Ver tabla</button>
+          </header>
+
+          <div class="controles">
+            <div>
+              <span class="control-etiqueta" id="etq-vista">Datos</span>
+              <div class="segmentado" role="group" aria-labelledby="etq-vista">
+                <button type="button" @click="vista = 'original'" :aria-pressed="vista === 'original'">Originales (privados)</button>
+                <button type="button" @click="vista = 'sintetico'" :aria-pressed="vista === 'sintetico'">Sintéticos (publicables)</button>
+              </div>
+            </div>
+          </div>
+
+          <div x-show="!verTabla">
+            <ul class="leyenda">
+              <li><span class="muestra" :class="{ 'estado-b': vista === 'sintetico' }"></span><span x-text="vista === 'original' ? 'Datos originales' : 'Datos sintéticos (ε = 1)'"></span></li>
+              <li><span class="muestra-linea"></span><span x-text="vista === 'original' ? 'Valor en los sintéticos' : 'Valor en los originales'"></span></li>
+            </ul>
+            <div class="grafico con-referencia" x-ref="marco" @mouseleave="ocultarTip()">
+              <div class="brechas">
+                <template x-for="(v, iv) in variables" :key="v.id">
+                  <div class="brecha-bloque">
+                    <div>
+                      <p class="brecha-nombre" x-text="v.nombre"></p>
+                      <div class="barras">
+                        <template x-for="(g, i) in v.grupos" :key="g.nombre">
+                          <div class="fila-barra">
+                            <span class="fila-etiqueta" x-text="g.nombre"></span>
+                            <div class="fila-pista">
+                              <div class="fila-escala" tabindex="0" role="img" :aria-label="`${g.nombre}: ${Formato.pct(g.original)} en los originales, ${Formato.pct(g.sintetico)} en los sintéticos`"
+                                   @mouseenter="tooltip($event, g)" @focus="tooltip($event, g)" @blur="ocultarTip()">
+                                <div class="barra" :class="{ 'estado-b': vista === 'sintetico' }" data-ancla :style="{ width: ancho(g[vista]) + '%' }"></div>
+                                <span class="marca-fantasma" :style="{ left: ancho(g[otraVista]) + '%' }"></span>
+                                <span class="barra-valor" :style="{ left: Math.max(ancho(g[vista]), ancho(g[otraVista])) + '%' }" x-text="Formato.pct(g[vista])"></span>
+                                <span class="linea-referencia" :style="{ left: anchoPromedio + '%' }"></span>
+                                <span class="linea-referencia-etiqueta" x-show="iv === 0 && i === 0" :style="{ left: anchoPromedio + '%' }">Promedio 17,6 %</span>
+                              </div>
+                            </div>
+                          </div>
+                        </template>
+                      </div>
+                    </div>
+                    <div class="brecha-resumen">
+                      <span class="brecha-valor" x-text="`${Formato.decimal(brecha(v), 1)} pp`"></span>
+                      <span class="brecha-texto" x-text="`brecha ${v.a.toLowerCase()} − ${v.b.toLowerCase()}`"></span>
+                      <span class="etiqueta">
+                        <span class="icono-estado" :class="{ no: estado(v) === 'Se pierde', si: estado(v) === 'Se conserva', neutro: estado(v) === 'Sin brecha' }" aria-hidden="true">
+                          <svg x-show="estado(v) === 'Se conserva'" width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 6.3l2.3 2.3 4.7-5.1"/></svg>
+                          <svg x-show="estado(v) === 'Se pierde'" width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M3 3l6 6M9 3l-6 6"/></svg>
+                          <svg x-show="estado(v) === 'Sin brecha'" width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M3 6h6"/></svg>
+                        </span>
+                        <span x-text="estado(v)"></span>
+                      </span>
+                    </div>
+                  </div>
+                </template>
+              </div>
+              <div class="tooltip" x-show="tip.visible" x-cloak aria-hidden="true" :style="{ left: tip.x + 'px', top: tip.y + 'px' }">
+                <strong x-text="tip.valor"></strong><span x-text="tip.titulo"></span><span class="tooltip-detalle" x-text="tip.detalle"></span>
+              </div>
+            </div>
+          </div>
+
+          <div class="tabla-scroll" x-show="verTabla" x-cloak>
+            <table class="tabla-datos">
+              <caption>% en pobreza multidimensional por grupo: datos originales y sintéticos (ε = 1)</caption>
+              <thead><tr><th scope="col">Variable</th><th scope="col">Grupo</th><th scope="col" class="num">Originales</th><th scope="col" class="num">Sintéticos</th></tr></thead>
+              <tbody>
+                <template x-for="f in filasTabla" :key="f.variable + f.nombre">
+                  <tr><td x-text="f.variable"></td><td x-text="f.nombre"></td><td class="num" x-text="Formato.pct(f.original)"></td><td class="num" x-text="Formato.pct(f.sintetico)"></td></tr>
+                </template>
+              </tbody>
+            </table>
+          </div>
+
+          <figcaption class="figura-nota">Fuente: Taller 4, celdas 33 a 35. Según ModelInspector, cada variable por separado casi no cambia: divergencia KL ≈ 0 en las categóricas, 0,004 en el tamaño del hogar, y diferencia KS de 0,006 en la edad. La línea vertical marca el promedio de la base (17,6 %); pp = puntos porcentuales.</figcaption>
+          <details class="figura-original">
+            <summary>Ver figura original del notebook</summary>
+            <img src="assets/img/t4_celda35_brechas_sintetico.png" width="799" height="441" loading="lazy"
+                 alt="Gráfico del Taller 4: porcentaje en pobreza multidimensional por grupo en datos originales y sintéticos.">
+          </details>
+        </figure>
+
+        <div class="dos-columnas" style="margin-top: 2.5rem">
+          <div class="prosa revelar">
+            <p class="etiqueta-bloque">Qué significa</p>
+            <p>Variable por variable, el sintético es casi perfecto. El problema aparece al mirar los grupos: se conservan la brecha de las personas extranjeras (32,1 % frente a 16,8 %) y la rural, pero <strong>la brecha indígena casi desaparece</strong>: de 7,2 a 1,0 puntos. En nuestra ejecución, la red bayesiana conectó pueblo indígena solo con la edad y la zona, no con la pobreza.</p>
+            <p>El resultado depende de qué relaciones conserva el modelo: en una prueba con k = 3, la brecha indígena se recuperó en parte, pero se achicó la de migrantes.</p>
+          </div>
+          <div class="hallazgo revelar" style="margin-top: 0">
+            <p class="hallazgo-etiqueta">Lección</p>
+            <p>Que las distribuciones se parezcan no significa que el dataset sirva para hablar de desigualdad. Un sintético mal revisado podría usarse para afirmar que los pueblos indígenas no son más pobres que el resto: sería falso y dañino. Los datos también pueden <strong>invisibilizar</strong> a quienes ya están en desventaja (D'Ignazio y Klein, 2020).</p>
+          </div>
+        </div>
+
+        <!-- Niveles de acceso: componente nivelesAcceso (app.js, sección 10) -->
+        <h3 class="subtitulo revelar">¿Datos reales o sintéticos? Depende del uso</h3>
+        <div class="prosa revelar">
+          <p>Nuestra decisión: <strong>no publicar los datos completos, proteger primero y dar acceso según el uso</strong>. La pregunta no es «todo público o todo anónimo», sino quién necesita qué nivel de detalle y para qué. Con la ubicación exacta de cada hogar, la base sería un mapa de dónde viven las familias más vulnerables; pero para entregar un beneficio, alguien sí necesita saber dónde está ese hogar.</p>
+        </div>
+        <figure class="figura revelar" x-data="nivelesAcceso" aria-labelledby="titulo-niveles">
+          <header class="figura-cabecera">
+            <div>
+              <p class="figura-etiqueta">Diagrama interactivo · Taller 4</p>
+              <h3 class="figura-titulo" id="titulo-niveles">Acceso por niveles</h3>
+              <p class="figura-subtitulo">Basado en el modelo de las «cinco seguridades» (<em>Five Safes</em>: proyectos, personas, entornos, datos y resultados seguros; Desai et al., 2016). Selecciona un nivel.</p>
+            </div>
+          </header>
+          <div class="niveles-contenedor">
+            <div>
+              <div class="niveles" role="group" aria-label="Niveles de acceso a los datos">
+                <template x-for="(n, i) in niveles" :key="n.nivel">
+                  <button type="button" class="nivel" :style="{ '--ancho': n.ancho + '%' }" @click="seleccion = i" :aria-pressed="seleccion === i" x-text="n.nivel"></button>
+                </template>
+                <div class="niveles-guia"><span>↑ Más detalle, menos personas</span><span>Más personas, menos detalle ↓</span></div>
+              </div>
+            </div>
+            <div class="nivel-detalle" aria-live="polite">
+              <dl>
+                <div><dt>Qué datos</dt><dd x-text="actual.datos"></dd></div>
+                <div><dt>Para qué</dt><dd x-text="actual.uso"></dd></div>
+                <div><dt>Resguardos</dt><dd x-text="actual.resguardos"></dd></div>
+              </dl>
+            </div>
+          </div>
+          <figcaption class="figura-nota">Fuente: Taller 4, celdas 11 y 27.</figcaption>
+        </figure>
+
+        <h3 class="subtitulo revelar">Activismo de datos con el conjunto sintético</h3>
+        <div class="dos-columnas">
+          <div class="prosa revelar">
+            <p>El activismo de datos usa datos para visibilizar injusticias y presionar por cambios, muchas veces desde la sociedad civil (Milan y van der Velden, 2016). Como el sintético no contiene personas reales, puede compartirse con colegios, medios, juntas de vecinos u organizaciones sociales sin exponer a nadie.</p>
+          </div>
+          <ol class="lista-numerada revelar">
+            <li><strong>Visibilizar la pobreza migrante:</strong> las personas extranjeras tienen casi el doble de pobreza multidimensional; una organización podría usarlo para exigir mejor acceso a vivienda, salud y trabajo formal.</li>
+            <li><strong>Mostrar la brecha rural</strong> para pedir más inversión en servicios fuera de las ciudades.</li>
+            <li><strong>Abrir los datos</strong> para que más personas hagan sus propias preguntas, sin esperar un informe oficial.</li>
+            <li><strong>Usarlo con honestidad:</strong> avisar que los datos son sintéticos y confirmar las cifras clave con los oficiales, como la brecha indígena.</li>
+            <li><strong>Pedir mejores datos:</strong> que cada base sintética se publique con una tabla de «brechas conservadas», para que proteger la privacidad no borre a los grupos vulnerables.</li>
+          </ol>
+        </div>
+
+        <div class="hallazgo revelar">
+          <p class="hallazgo-etiqueta">Qué encontramos</p>
+          <p><strong>Proteger la privacidad no debe borrar a nadie.</strong> Con solo siete variables, miles de personas quedan expuestas; la privacidad diferencial las protege, pero puede hacer desaparecer justamente las desigualdades que más importan. Compartir datos responsablemente exige ambas cosas: proteger a las personas y revisar que el resultado siga contando la verdad sobre ellas.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         07 · CONCLUSIÓN  (requisito 4)
+         ==================================================================== -->
+    <section id="conclusion" class="seccion" aria-labelledby="titulo-conclusion">
+      <div class="contenedor">
+        <header class="seccion-cabecera revelar">
+          <p class="kicker"><span>07</span>Conclusión</p>
+          <h2 id="titulo-conclusion">Los datos no son neutrales</h2>
+          <p class="entradilla">Cuatro talleres después, la pregunta inicial —¿podemos predecir la pobreza?— se transformó en otra: ¿cómo hacerlo sin dañar a quienes ya están en desventaja?</p>
+        </header>
+
+        <ul class="aprendizajes revelar">
+          <li class="aprendizaje">
+            <p class="aprendizaje-taller">Taller 1 · Exploración</p>
+            <h3>Lo que no se ve en la muestra, no se ve en el modelo</h3>
+            <p>Grupos muy pequeños —54 personas trans, 1,2 % de diversidad sexual— producen estadísticas frágiles y modelos que fallan justo con ellos.</p>
+          </li>
+          <li class="aprendizaje">
+            <p class="aprendizaje-taller">Taller 2 · Sesgo y justicia</p>
+            <h3>Un buen promedio puede esconder una injusticia</h3>
+            <p>93,6 % de accuracy, pero 31 % de falsos negativos para personas con dificultades de cuidado personal. Y mitigar puede igualar «hacia abajo».</p>
+          </li>
+          <li class="aprendizaje">
+            <p class="aprendizaje-taller">Taller 3 · Explicabilidad</p>
+            <h3>Explicar no es justificar</h3>
+            <p>LIME y SHAP revelaron sesgos de lenguaje, proxies socioeconómicos y un caso de exclusión, pero no prueban causalidad ni equidad, ni detectaron la filtración por hogares.</p>
+          </li>
+          <li class="aprendizaje">
+            <p class="aprendizaje-taller">Taller 4 · Derechos y privacidad</p>
+            <h3>Proteger la privacidad no debe borrar a nadie</h3>
+            <p>Con siete variables, 4.694 personas son únicas. El sintético las protege y conserva los totales, pero borró la brecha indígena.</p>
+          </li>
+        </ul>
+
+        <p class="cierre revelar">Un modelo de pobreza puede ser una herramienta poderosa para focalizar ayudas, pero nunca debería decidir solo. Necesita evaluación por grupos, explicaciones que se puedan revisar, supervisión humana, un canal de reclamo y, sobre todo, la participación de las personas cuyos datos lo hacen posible.</p>
+        <p class="frase-final revelar">Medir la pobreza con responsabilidad es medirla sin dejar a nadie atrás.</p>
+      </div>
+    </section>
+  </main>
+
+  <!-- ======================================================================
+       REFERENCIAS (formato APA 7, reunidas desde los cuatro notebooks)
+       ====================================================================== -->
+  <section class="referencias" aria-label="Referencias">
+    <div class="contenedor">
+      <details>
+        <summary>Referencias</summary>
+        <ul>
+          <li>AZ. (2026, 18 de noviembre). <em>Ley de Protección de Datos Personales: Congreso aprueba postergación de su entrada en vigencia al 15 de octubre de 2027</em>. https://www.az.cl/ley-de-proteccion-de-datos-personales-congreso-aprueba-postergacion-de-su-entrada-en-vigencia-al-15-de-octubre-de-2027/</li>
+          <li>Barocas, S., y Selbst, A. D. (2016). Big data's disparate impact. <em>California Law Review, 104</em>(3), 671–732. https://doi.org/10.15779/Z38BG31</li>
+          <li>Buolamwini, J., y Gebru, T. (2018). Gender shades: Intersectional accuracy disparities in commercial gender classification. <em>Proceedings of Machine Learning Research, 81</em>, 1–15.</li>
+          <li>Cañete, J., Chaperon, G., Fuentes, R., Ho, J.-H., Kang, H., y Pérez, J. (2020). Spanish pre-trained BERT model and evaluation data. <em>PML4DC Workshop at ICLR 2020</em>.</li>
+          <li>Desai, T., Ritchie, F., y Welpton, R. (2016). <em>Five Safes: Designing data access for research</em> (Economics Working Paper Series 1601). University of the West of England.</li>
+          <li>D'Ignazio, C., y Klein, L. F. (2020). <em>Data feminism</em>. MIT Press.</li>
+          <li>Dixon, L., Li, J., Sorensen, J., Thain, N., y Vasserman, L. (2018). Measuring and mitigating unintended bias in text classification. En <em>Proceedings of the 2018 AAAI/ACM Conference on AI, Ethics, and Society</em> (pp. 67–73). https://doi.org/10.1145/3278721.3278729</li>
+          <li>Dwork, C., y Roth, A. (2014). The algorithmic foundations of differential privacy. <em>Foundations and Trends in Theoretical Computer Science, 9</em>(3–4), 211–407. https://doi.org/10.1561/0400000042</li>
+          <li>Eguiguren Abogados. (2026, 17 de noviembre). <em>Ley 21.719: cuándo entra en vigencia y si se posterga</em>. https://www.eguigurenyabogados.cl/newsletter/modificaciones-prorroga-regimen-ley-datos-personales</li>
+          <li>Kaufman, S., Rosset, S., Perlich, C., y Stitelman, O. (2012). Leakage in data mining: Formulation, detection, and avoidance. <em>ACM Transactions on Knowledge Discovery from Data, 6</em>(4), 1–21. https://doi.org/10.1145/2382577.2382579</li>
+          <li>Kumar, I. E., Venkatasubramanian, S., Scheidegger, C., y Friedler, S. (2020). Problems with Shapley-value-based explanations as feature importance measures. En <em>Proceedings of the 37th International Conference on Machine Learning</em> (pp. 5491–5500). PMLR.</li>
+          <li>Ley N° 17.374. (1970). Ley orgánica de la Dirección de Estadística y Censos; crea el Instituto Nacional de Estadísticas. Biblioteca del Congreso Nacional de Chile.</li>
+          <li>Ley N° 19.628. (1999). Sobre protección de la vida privada. Biblioteca del Congreso Nacional de Chile.</li>
+          <li>Ley N° 20.285. (2008). Sobre acceso a la información pública. Biblioteca del Congreso Nacional de Chile.</li>
+          <li>Ley N° 21.096. (2018). Consagra el derecho a protección de los datos personales. Biblioteca del Congreso Nacional de Chile.</li>
+          <li>Ley N° 21.719. (2024). Regula la protección y el tratamiento de los datos personales y crea la Agencia de Protección de Datos Personales. <em>Diario Oficial de la República de Chile</em>, 13 de diciembre de 2024.</li>
+          <li>Lundberg, S. M., y Lee, S.-I. (2017). A unified approach to interpreting model predictions. En <em>Advances in Neural Information Processing Systems 30</em> (pp. 4765–4774).</li>
+          <li>Lundberg, S. M., Erion, G., Chen, H., DeGrave, A., Prutkin, J. M., Nair, B., Katz, R., Himmelfarb, J., Bansal, N., y Lee, S.-I. (2020). From local explanations to global understanding with explainable AI for trees. <em>Nature Machine Intelligence, 2</em>(1), 56–67. https://doi.org/10.1038/s42256-019-0138-9</li>
+          <li>Milan, S., y van der Velden, L. (2016). The alternative epistemologies of data activism. <em>Digital Culture &amp; Society, 2</em>(2), 57–74. https://doi.org/10.14361/dcs-2016-0205</li>
+          <li>Ministerio de Desarrollo Social y Familia. (2026a). <em>Metodología de diseño muestral Casen 2024</em>. División Observatorio Social. <a href="Diseno_Muestral_Casen_2024.pdf">PDF en este repositorio</a>.</li>
+          <li>Ministerio de Desarrollo Social y Familia. (2026b). <em>Metodología de medición de la pobreza multidimensional en Chile: Actualización 2024</em>. División Observatorio Social.</li>
+          <li>Molnar, C. (2022). <em>Interpretable machine learning: A guide for making black box models explainable</em> (2.ª ed.). https://christophm.github.io/interpretable-ml-book/</li>
+          <li>Office of the United Nations High Commissioner for Human Rights. (2018). <em>A human rights-based approach to data: Leaving no one behind in the 2030 Agenda for Sustainable Development</em>. OHCHR.</li>
+          <li>Pérez, J. M., Giudici, J. C., y Luque, F. (2021). <em>pysentimiento: A Python toolkit for sentiment analysis and SocialNLP tasks</em> [Preprint]. arXiv. https://arxiv.org/abs/2106.09462</li>
+          <li>Ping, H., Stoyanovich, J., y Howe, B. (2017). DataSynthesizer: Privacy-preserving synthetic datasets. En <em>Proceedings of the 29th International Conference on Scientific and Statistical Database Management</em> (pp. 1–5). https://doi.org/10.1145/3085504.3091117</li>
+          <li>Ribeiro, M. T., Singh, S., y Guestrin, C. (2016). «Why should I trust you?»: Explaining the predictions of any classifier. En <em>Proceedings of the 22nd ACM SIGKDD International Conference on Knowledge Discovery and Data Mining</em> (pp. 1135–1144). https://doi.org/10.1145/2939672.2939778</li>
+          <li>Rudin, C. (2019). Stop explaining black box machine learning models for high stakes decisions and use interpretable models instead. <em>Nature Machine Intelligence, 1</em>(5), 206–215. https://doi.org/10.1038/s42256-019-0048-x</li>
+          <li>Slack, D., Hilgard, S., Jia, E., Singh, S., y Lakkaraju, H. (2020). Fooling LIME and SHAP: Adversarial attacks on post hoc explanation methods. En <em>Proceedings of the AAAI/ACM Conference on AI, Ethics, and Society</em> (pp. 180–186). https://doi.org/10.1145/3375627.3375830</li>
+          <li>Sweeney, L. (2002). k-anonymity: A model for protecting privacy. <em>International Journal of Uncertainty, Fuzziness and Knowledge-Based Systems, 10</em>(5), 557–570. https://doi.org/10.1142/S0218488502001648</li>
+        </ul>
+      </details>
+    </div>
+  </section>
+
+  <!-- ======================================================================
+       PIE DE PÁGINA
+       ====================================================================== -->
+  <footer class="pie">
+    <div class="contenedor pie-grid">
+      <div>
+        <p><strong>ETI195 · Ética para Ciencia de Datos y Estadística</strong> · 2026</p>
+        <p>Datos: Encuesta CASEN 2024, Ministerio de Desarrollo Social y Familia (versión preprocesada entregada por el curso).</p>
+      </div>
+      <div>
+        <p>Sitio estático hecho con HTML, CSS y <a href="https://alpinejs.dev">Alpine.js</a>.</p>
+        <p><a href="https://github.com/SergioHdezDC/Taller_ETI195_Casen2024">Código y notebooks en GitHub</a></p>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,19 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "sitio",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "http.server", "8765", "--directory", "docs"],
+      "port": 8765,
+      "autoPort": false
+    },
+    {
+      "name": "pagina-raiz",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "http.server", "8766", "--directory", "."],
+      "port": 8766,
+      "autoPort": false
+    }
+  ]
+}
