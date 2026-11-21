@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Activismo de datos y pobreza multidimensional | CASEN 2024</title>
+  <meta name="description" content="Proyecto del curso ETI195 con la Encuesta CASEN 2024: revisamos sesgos, explicabilidad, privacidad y derechos humanos al predecir la pobreza multidimensional en Chile.">
+  <meta name="theme-color" content="#f7f6f2">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%231c5cab'/%3E%3Cg fill='%23fff'%3E%3Ccircle cx='10.5' cy='10.5' r='3.2'/%3E%3Ccircle cx='21.5' cy='10.5' r='3.2' opacity='.45'/%3E%3Ccircle cx='10.5' cy='21.5' r='3.2' opacity='.45'/%3E%3Ccircle cx='21.5' cy='21.5' r='3.2' opacity='.45'/%3E%3C/g%3E%3C/svg%3E">
+  <script>
+    document.documentElement.classList.add('js');
+  </script>
+
+  <!--  TipografíaS -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400..700;1,8..60,400..700&display=swap">
+
+  <!-- Estilos css-->
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="saltar" href="#contenido">Saltar al contenido</a>
+
+  <!-- BARRA NAVEGACIÓN SUPERIOR -->
+  <header class="barra-sitio">
+    <div class="contenedor barra-sitio-interior">
+      <a class="marca" href="#inicio">Activismo de datos<span class="marca-sub"> · CASEN 2024</span></a>
+      <nav class="nav" aria-label="Secciones del sitio">
+        <ul class="nav-lista">
+          <li><a href="#contexto">Dataset</a></li>
+          <li><a href="#talleres">Talleres</a></li>
+          <li><a href="#visualizaciones">Visualizaciones</a></li>
+          <li><a href="#activismo">Manifiesto</a></li>
+          <li><a href="#conclusiones">Conclusión</a></li>
+          <li><a href="#descargas">Recursos</a></li>
+        </ul>
+      </nav>
+    </div>
+    <div class="progreso" aria-hidden="true"></div>
+  </header>
+
+  <main id="contenido">
+
+    <!-- PORTADA -->
+    <section id="inicio" class="portada" aria-labelledby="titulo-principal">
+      <div class="contenedor">
+        <div class="portada-grid">
+          <div class="portada-texto">
+            <p class="sobretitulo">ETI195 · Ética para Ciencia de Datos y Estadística</p>
+            <h1 id="titulo-principal">Más allá de los algoritmos,<span class="solo-lectores">:</span> <em>activismo de datos frente a la pobreza</em></h1>
+            <p class="entradilla">Durante el semestre trabajamos con la Encuesta CASEN 2024 para predecir y auditar la pobreza multidimensional en Chile. En el camino vimos cómo un modelo con buenos números, una métrica de equidad mal aplicada o una técnica de privacidad pueden discriminar o invisibilizar a los grupos más vulnerables.</p>
+            <!-- Integrantes -->
+            <p class="autores-titulo">Integrantes</p>
+            <ul class="autores">
+              <li>Sergio Andrés Hernández Salgado</li>
+              <li>Marco Antonio Ramírez Gaete</li>
+              <li>Reinaldo Rodrigo Oliva Morales</li>
+              <li>Juan Tomás José Lepivil Vigueras</li>
+            </ul>
+
+            <div class="acciones">
+              <a class="boton boton-primario" href="#contexto">Explorar el proyecto</a>
+              <a class="boton boton-secundario" href="#visualizaciones">Ver las visualizaciones</a>
+              <a class="boton boton-secundario" href="https://github.com/SergioHdezDC/Taller_ETI195_Casen2024" target="_blank" rel="noopener noreferrer">Repositorio en GitHub ↗</a>
+            </div>
+          </div>
+
+          <!-- Matriz de puntos -->
+          <figure class="portada-figura">
+            <div class="puntos" id="puntos" role="img" aria-label="Matriz de 212 puntos; 37 puntos destacados representan a las personas en pobreza multidimensional"></div>
+            <figcaption>Cada punto representa cerca de 1.000 personas de la base. Los <strong>37 puntos azules</strong> corresponden a quienes viven en pobreza multidimensional (17,6%).</figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <!-- QUÉ ES EL ACTIVISMO DE DATOS -->
+    <section class="definicion" aria-labelledby="titulo-definicion">
+      <div class="contenedor">
+        <div class="definicion-interior revelar">
+          <h2 class="definicion-titulo" id="titulo-definicion">¿Qué es el activismo de datos?</h2>
+          <p class="definicion-texto">Es no aceptar los números como hechos neutrales solo porque vienen de una autoridad. Hacer activismo de datos significa revisar cómo se recolectan, cómo se usan y cómo se interpretan, y usarlos desde la sociedad civil para mostrar injusticias y defender derechos.</p>
+          <p class="definicion-fuente">Definición basada en Milan y van der Velden (2016) y en D'Ignazio y Klein (2020).</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- POR QUÉ ESCOGIMOS EL DATASET -->
+    <section id="contexto" class="seccion" aria-labelledby="titulo-contexto">
+      <div class="contenedor">
+        <header class="seccion-cabecera revelar">
+          <p class="kicker"><span>01</span>Punto de partida</p>
+          <h2 id="titulo-contexto">¿Por qué la CASEN y por qué importa este tema?</h2>
+          <p class="entradilla">Detrás de cada fila de esta encuesta hay una familia, y lo que se haga con esos datos termina en decisiones de política pública.</p>
+        </header>
+
+        <div class="dos-columnas">
+          <div class="prosa revelar">
+            <h3 class="titulo-bloque">La encuesta que orienta la política social</h3>
+            <p>Usamos la versión preprocesada de la Encuesta CASEN 2024. La CASEN la realiza el Ministerio de Desarrollo Social y Familia y es la principal herramienta que tiene el Estado para conocer la situación socioeconómica de los hogares. Con ella se calcula la pobreza por ingresos y la pobreza multidimensional, y se decide hacia dónde se dirigen muchos programas y subsidios.</p>
+            <p>En los cuatro talleres trabajamos con la misma variable objetivo, <code>pobreza_multi</code>, que indica si una persona vive en un hogar en situación de pobreza multidimensional. Esta medida no considera los ingresos: se fija en las carencias del hogar en educación, salud, trabajo y seguridad social, vivienda y entorno, y redes y cohesión social.</p>
+          </div>
+
+          <aside class="ficha revelar" aria-labelledby="titulo-ficha">
+            <h3 class="ficha-titulo" id="titulo-ficha">Ficha del dataset</h3>
+            <dl>
+              <div><dt>Fuente</dt><dd>Ministerio de Desarrollo Social y Familia</dd></div>
+              <div><dt>Qué es</dt><dd>Encuesta representativa de los hogares de Chile y base de la política social</dd></div>
+              <div><dt>Variable objetivo</dt><dd><code>pobreza_multi</code></dd></div>
+              <div><dt>En pobreza</dt><dd><strong>17,6%</strong> de las personas, frente a un 82,4% que no lo está. Es la clase minoritaria, así que la base viene desbalanceada.</dd></div>
+              <div><dt>Dimensiones</dt><dd>Educación, salud, trabajo y seguridad social, vivienda y entorno, y redes y cohesión social</dd></div>
+            </dl>
+          </aside>
+        </div>
+
+        <h3 class="subtitulo revelar">La CASEN vista desde el otro lado del formulario</h3>
+        <div class="prosa revelar">
+          <p>Desde la ciencia de datos es fácil mirar la CASEN como la mira el Estado: una tabla enorme con la que se puede entrenar un modelo para repartir subsidios. Pero si la miramos con un enfoque de derechos humanos, aparecen otras preguntas.</p>
+          <ol class="lista-numerada">
+            <li><strong>Es un registro muy íntimo.</strong> Las familias cuentan de qué material es el piso de su casa, si tienen baño propio, si alguien tiene una enfermedad o discapacidad, su identidad de género, su orientación sexual, si pertenecen a un pueblo indígena y cuál es su situación migratoria.</li>
+            <li><strong>Los errores tienen un costo.</strong> Si un modelo clasifica como “no pobre” a alguien que sí vive con carencias graves (un falso negativo), esa familia puede quedar fuera de subsidios que necesita para vivir.</li>
+            <li><strong>El código no es neutral.</strong> Desde qué variable imputar hasta qué métrica optimizar, cada decisión técnica cambia quién recibe ayuda y quién queda sin protección.</li>
+          </ol>
+        </div>
+      </div>
+    </section>
+
+    <!-- RECORRIDO DE TALLERES -->
+    <section id="talleres" class="seccion" aria-labelledby="titulo-talleres">
+      <div class="contenedor">
+        <header class="seccion-cabecera revelar">
+          <p class="kicker"><span>02</span>Recorrido</p>
+          <h2 id="titulo-talleres">Los cuatro talleres del semestre</h2>
+          <p class="entradilla">En cada taller partimos de una pregunta, probamos una técnica y anotamos lo que encontramos.</p>
+        </header>
+
+        <ol class="recorrido revelar">
+          <li>
+            <a class="tarjeta" href="#taller-1">
+              <span class="tarjeta-num">Taller 1 · Exploración</span>
+              <span class="tarjeta-titulo">¿Quiénes están en los datos?</span>
+              <span class="tarjeta-texto">Representación de los grupos y cruces entre variables sensibles.</span>
+              <span class="tarjeta-ir">Ir al taller ↓</span>
+            </a>
+          </li>
+          <li>
+            <a class="tarjeta" href="#taller-2">
+              <span class="tarjeta-num">Taller 2 · Justicia algorítmica</span>
+              <span class="tarjeta-titulo">¿El modelo se equivoca igual con todos?</span>
+              <span class="tarjeta-texto">Árbol de decisión, métricas de equidad con Aequitas y mitigación con EqOdds.</span>
+              <span class="tarjeta-ir">Ir al taller ↓</span>
+            </a>
+          </li>
+          <li>
+            <a class="tarjeta" href="#taller-3">
+              <span class="tarjeta-num">Taller 3 · Explicabilidad</span>
+              <span class="tarjeta-titulo">¿En qué se fija el modelo para decidir?</span>
+              <span class="tarjeta-texto">LIME sobre un modelo de lenguaje (BETO) y SHAP sobre un Random Forest.</span>
+              <span class="tarjeta-ir">Ir al taller ↓</span>
+            </a>
+          </li>
+          <li>
+            <a class="tarjeta" href="#taller-4">
+              <span class="tarjeta-num">Taller 4 · Derechos y privacidad</span>
+              <span class="tarjeta-titulo">¿Cómo compartir los datos sin borrar a nadie?</span>
+              <span class="tarjeta-texto">Principios de la ONU, Ley 21.719 y datos sintéticos con privacidad diferencial.</span>
+              <span class="tarjeta-ir">Ir al taller ↓</span>
+            </a>
+          </li>
+        </ol>
+
+        <!-- TALLER 1 -->
+        <article id="taller-1" class="taller" aria-labelledby="titulo-taller-1">
+          <header class="taller-cabecera revelar">
+            <p class="kicker"><span>Taller 1</span>Exploración y variables sensibles</p>
+            <h3 class="taller-titulo" id="titulo-taller-1">La trampa de la representatividad</h3>
+          </header>
+
+          <div class="dos-columnas">
+            <div class="prosa revelar">
+              <p class="etiqueta-bloque">La pregunta</p>
+              <p>¿Qué tan bien representados están los grupos vulnerables en la CASEN 2024? ¿Y qué pasa cuando cruzamos atributos para mirar grupos más pequeños?</p>
+              <p class="etiqueta-bloque">Qué hicimos</p>
+              <p>Revisamos la estructura de la base, separamos las variables numéricas de las categóricas y miramos cómo se distribuyen las variables sensibles: sexo, pertenencia a pueblos indígenas, orientación sexual y dificultades de salud. Después cruzamos sexo con orientación sexual para ver el analfabetismo dentro de cada combinación.</p>
+            </div>
+
+            <ul class="datos revelar">
+              <li class="dato">
+                <span class="dato-valor">97,58%</span>
+                <span class="dato-etiqueta">se declara heterosexual</span>
+                <span class="dato-detalle">El 2,4% restante se reparte entre gay o lesbiana, bisexual, otra orientación, no sabe y prefiere no responder.</span>
+              </li>
+              <li class="dato">
+                <span class="dato-valor">13,95%</span>
+                <span class="dato-etiqueta">pertenece a un pueblo indígena</span>
+                <span class="dato-detalle">El 86,05% restante no pertenece a ninguno.</span>
+              </li>
+            </ul>
+          </div>
+
+          <div class="hallazgo revelar">
+            <p class="hallazgo-etiqueta">Qué encontramos</p>
+            <p>Al cruzar orientación sexual con alfabetismo aparecieron resultados que no tenían sentido. Los hombres que dicen no saber su orientación sexual tenían un 10,81% de analfabetismo, muy por sobre el resto, y varios grupos, como las mujeres bisexuales, lesbianas o de otra orientación, aparecían con 0%. No es que esos grupos sean así: tienen tan pocos casos que cualquier porcentaje se vuelve extremo. Si se entrena un modelo con datos así, aparece la paradoja de la exactitud: el modelo aprende sobre todo de la mayoría y se equivoca mucho más con las minorías (Buolamwini y Gebru, 2018; Barocas y Selbst, 2016).</p>
+            <p class="hallazgo-subtitulo">Qué consecuencias puede tener</p>
+            <ul>
+              <li><strong>Personas que quedan fuera de las ayudas.</strong> Si el Estado usara un modelo entrenado con estos desbalances para focalizar subsidios, acertaría con la mayoría heterosexual y fallaría mucho más con las minorías sexuales y otros grupos pequeños. Familias con carencias graves quedarían marcadas como “no vulnerables” y sin bonos, subsidios de vivienda o atención de salud.</li>
+              <li><strong>Prejuicios que se vuelven reglas.</strong> Un modelo que aprende una correlación falsa, como asociar una orientación sexual minoritaria con menos educación, puede llevar ese error a otros sistemas automáticos, por ejemplo de empleo, crédito o vivienda, y castigar a esas personas con un argumento que parece técnico.</li>
+              <li><strong>Una neutralidad que no es tal.</strong> Es fácil escudarse en que “lo decidió un modelo con 95% de exactitud”. Así, desigualdades históricas pasan por verdades matemáticas que nadie discute (Barocas y Selbst, 2016), y la persona afectada no tiene cómo apelar.</li>
+            </ul>
+          </div>
+
+          <figure class="figura revelar">
+            <div class="figura-cabecera">
+              <p class="figura-etiqueta">Figura 1 · Taller 1</p>
+              <h4 class="figura-titulo">Analfabetismo según sexo y orientación sexual</h4>
+            </div>
+            <div class="figura-marco">
+              <img src="assets/images/t1_analfabetismo_subpoblaciones.png" width="1176" height="584" loading="lazy"
+                   alt="Gráfico de barras con el porcentaje de analfabetismo en cada combinación de sexo y orientación sexual. Los hombres que no saben su orientación llegan a 10,81%, y varios grupos con pocos casos aparecen con 0%.">
+              <button type="button" class="figura-ampliar" aria-label="Ampliar la figura 1">Ampliar</button>
+            </div>
+            <figcaption class="figura-nota">Porcentaje de analfabetismo dentro de cada combinación de sexo y orientación sexual. Los grupos con pocos casos muestran valores extremos, como 0% o 10,81%, que no son confiables.</figcaption>
+          </figure>
+        </article>
+
+        <!-- TALLER 2 -->
+        <article id="taller-2" class="taller" aria-labelledby="titulo-taller-2">
+          <header class="taller-cabecera revelar">
+            <p class="kicker"><span>Taller 2</span>Árbol de decisión, Aequitas y EqOdds</p>
+            <h3 class="taller-titulo" id="titulo-taller-2">Justicia algorítmica y la ilusión de la paridad</h3>
+          </header>
+
+          <div class="dos-columnas">
+            <div class="prosa revelar">
+              <p class="etiqueta-bloque">La pregunta</p>
+              <p>Un modelo con buen rendimiento global, ¿se equivoca igual con todos? Por ejemplo, ¿falla lo mismo con personas con y sin discapacidad, o con personas indígenas y no indígenas?</p>
+              <p class="etiqueta-bloque">Qué hicimos</p>
+              <p>Primero preparamos la base: imputamos con mediana y moda (por precaución, porque no había datos faltantes), recortamos valores atípicos con el rango intercuartílico, escalamos con MinMaxScaler y convertimos las categorías en variables dummy. Luego entrenamos un árbol de decisión con <code>class_weight='balanced'</code> para compensar el desbalance, revisamos sus errores por grupo con Aequitas y probamos la mitigación <code>EqOddsPostProcessing</code> de AIF360.</p>
+            </div>
+
+            <ul class="datos revelar">
+              <li class="dato">
+                <span class="dato-valor">93,59%</span>
+                <span class="dato-etiqueta">de accuracy global</span>
+                <span class="dato-detalle">Medido en el conjunto de prueba.</span>
+              </li>
+              <li class="dato">
+                <span class="dato-valor">31,12%</span>
+                <span class="dato-etiqueta">de falsos negativos en personas con dificultad para el cuidado personal</span>
+                <span class="dato-detalle">En quienes no tienen esa dificultad la tasa es 17,94%. Con el primer grupo el modelo falla un 73,5% más.</span>
+              </li>
+            </ul>
+          </div>
+
+          <div class="hallazgo revelar">
+            <p class="hallazgo-etiqueta">Qué encontramos</p>
+            <p>Con la pertenencia indígena el modelo se comportó de forma bastante pareja. Con la dificultad para el cuidado personal, que usamos como indicador de discapacidad, fue distinto: el modelo falló un 73,5% más al detectar la pobreza de las personas con esa dificultad (31,12% de falsos negativos contra 17,94%).</p>
+            <p class="hallazgo-subtitulo">Qué significa en la práctica</p>
+            <p>Los hogares con personas con discapacidad o dependencia gastan más en remedios, cuidados y terapias. Con una tasa de falsos negativos de 31%, casi 1 de cada 3 personas con discapacidad que vive en pobreza quedaría fuera de los programas sociales por un error del modelo.</p>
+            <p>Cuando aplicamos <code>EqOddsPostProcessing</code> para forzar la paridad (lo evaluamos en una parte del conjunto de prueba), el grupo con discapacidad no mejoró: su tasa de falsos negativos se quedó en 30,28%. Lo que hizo el algoritmo fue empeorar al otro grupo, cuyo error subió de 16,77% a 30,33%, y el accuracy bajó de 93,73% a 87,30%. Es decir, igualó hacia abajo. En la práctica, muchas más personas pobres se quedarían sin ayuda solo para cumplir una fórmula, así que forzar la paridad sin resolver los problemas de los datos no nos parece una solución ética.</p>
+          </div>
+
+          <figure class="figura revelar">
+            <div class="figura-cabecera">
+              <p class="figura-etiqueta">Figura 2 · Taller 2</p>
+              <h4 class="figura-titulo">Errores del árbol de decisión por grupo</h4>
+            </div>
+            <div class="figura-marco">
+              <img src="assets/images/t2_aequitas_disparidad_discapacidad.png" width="1089" height="435" loading="lazy"
+                   alt="Dos gráficos de barras con la tasa de falsos negativos (FNR) y la tasa de falsos descubrimientos (FDR) por grupo. Pertenencia indígena: 18,9% y 18,2% en no indígenas; 17,7% y 15,9% en indígenas. Cuidado personal: 17,9% y 17,4% sin dificultad; 31,1% y 25,1% con dificultad.">
+              <button type="button" class="figura-ampliar" aria-label="Ampliar la figura 2">Ampliar</button>
+            </div>
+            <figcaption class="figura-nota">FNR es el porcentaje de personas pobres que el modelo no detecta. FDR es el porcentaje de error entre quienes el modelo predijo como pobres. La diferencia más grande está en el FNR de las personas con dificultad para el cuidado personal (31,1% contra 17,9%).</figcaption>
+          </figure>
+        </article>
+
+        <!-- TALLER 3 -->
+        <article id="taller-3" class="taller" aria-labelledby="titulo-taller-3">
+          <header class="taller-cabecera revelar">
+            <p class="kicker"><span>Taller 3</span>LIME sobre BETO y SHAP sobre Random Forest</p>
+            <h3 class="taller-titulo" id="titulo-taller-3">Abriendo la caja negra</h3>
+          </header>
+
+          <div class="prosa revelar">
+            <p class="etiqueta-bloque">La pregunta</p>
+            <p>¿En qué se fija un modelo para decidir? Queríamos saber si un clasificador de sentimientos lee mal las cartas que el Estado manda a las familias vulnerables, y qué variables empujan a un hogar hacia la pobreza multidimensional.</p>
+            <p class="etiqueta-bloque">Qué hicimos</p>
+          </div>
+          <ol class="pasos revelar">
+            <li class="paso">
+              <h4>LIME sobre BETO</h4>
+              <p>BETO es un modelo de lenguaje en español que, en la versión que usamos, aprendió a clasificar sentimiento con tuits. Le pasamos 14 frases como las que podría enviar el Estado (beneficios aprobados, rechazos y cartas a personas migrantes o mapuche) y con LIME vimos qué palabras decidían cada predicción.</p>
+            </li>
+            <li class="paso">
+              <h4>SHAP sobre Random Forest</h4>
+              <p>Entrenamos un Random Forest con la CASEN, con un accuracy de 83,2% y un recall de 78,5% para la clase pobre, y usamos SHAP para ver qué variables pesan más, tanto en general como en casos individuales.</p>
+            </li>
+          </ol>
+
+          <div class="hallazgo revelar">
+            <p class="hallazgo-etiqueta">Qué encontramos</p>
+            <p>Con LIME vimos que BETO lee como negativas palabras que en política social son de uso normal. En una frase que solo describía la situación de un hogar, lo que decidió la predicción fueron “pobreza” (+0,33) y “carencias” (+0,30). Y cuando una carta aprobaba una ayuda, pero mencionaba que la familia pasaba por un momento difícil, el modelo ya no la leía como positiva. Tiene sentido: aprendió de tuits, donde esas palabras suelen ser quejas, mientras que en una carta del Estado son términos técnicos.</p>
+            <p>Con SHAP vimos que lo que más pesa es el tamaño del hogar (<code>tot_per_h</code> y <code>p9</code>), el estado de muros y pisos, y dos variables que no son parte del índice pero delatan el nivel socioeconómico: tener internet fijo y tener vehículo. También revisamos un falso negativo, es decir, un hogar pobre que el modelo no detectó. Lo que lo convenció de que no era pobre fue que vivían solo dos personas, que tenían vehículo y que la vivienda estaba en buen estado. Con esa explicación, un trabajador social podría revisar el caso y corregir la decisión.</p>
+          </div>
+
+          <figure class="figura alta revelar">
+            <div class="figura-cabecera">
+              <p class="figura-etiqueta">Figura 3 · Taller 3</p>
+              <h4 class="figura-titulo">Qué variables empujan la predicción hacia “pobre”</h4>
+            </div>
+            <div class="figura-marco">
+              <img src="assets/images/t3_shap_summary_plot.png" width="764" height="940" loading="lazy"
+                   alt="Summary plot de SHAP para la clase pobre. Las variables con más efecto son el número de personas del hogar y de la vivienda, el estado de muros y pisos, el acceso a internet fijo y la tenencia de vehículo.">
+              <button type="button" class="figura-ampliar" aria-label="Ampliar la figura 3">Ampliar</button>
+            </div>
+            <figcaption class="figura-nota">Summary plot de SHAP del Random Forest. Cada punto es una persona de la muestra. El color indica si el valor de la variable es alto (rojo) o bajo (azul), y mientras más a la derecha está el punto, más empuja la predicción hacia “pobre”.</figcaption>
+          </figure>
+        </article>
+
+        <!-- TALLER 4 -->
+        <article id="taller-4" class="taller" aria-labelledby="titulo-taller-4">
+          <header class="taller-cabecera revelar">
+            <p class="kicker"><span>Taller 4</span>Enfoque de derechos, Ley 21.719 y DataSynthesizer</p>
+            <h3 class="taller-titulo" id="titulo-taller-4">Derechos humanos, privacidad diferencial y activismo de datos</h3>
+          </header>
+
+          <div class="prosa revelar">
+            <p class="etiqueta-bloque">La pregunta</p>
+            <p>¿Cumple la CASEN con el enfoque de derechos humanos que propone la ONU? ¿Se pueden anonimizar los datos para publicarlos sin exponer a las personas y sin borrar las desigualdades que viven las minorías?</p>
+            <p class="etiqueta-bloque">Qué hicimos</p>
+            <p>Evaluamos la CASEN con los seis principios de la Oficina del Alto Comisionado de la ONU para los Derechos Humanos (OHCHR, 2018) y revisamos la ley chilena: la Ley 19.628, la nueva Ley 21.719 y la postergación de su entrada en vigencia a octubre de 2027. Después generamos una versión sintética de los datos con privacidad diferencial usando DataSynthesizer, en modo correlacionado (una red bayesiana con k = 2) y con ε = 1.</p>
+          </div>
+
+          <p class="etiqueta-bloque separada revelar">Cómo evaluamos la CASEN</p>
+          <ul class="principios revelar">
+            <li class="principio">
+              <h4 class="principio-nombre">Participación</h4>
+              <span class="estado-chip"><span class="icono-estado no" aria-hidden="true"><svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M3 3l6 6M9 3l-6 6"/></svg></span>No cumple</span>
+              <p>La definición de pobreza y las preguntas las diseñan equipos técnicos y paneles de expertos. Las comunidades solo participan respondiendo la encuesta.</p>
+            </li>
+            <li class="principio">
+              <h4 class="principio-nombre">Desagregación</h4>
+              <span class="estado-chip"><span class="icono-estado si" aria-hidden="true"><svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 6.3l2.3 2.3 4.7-5.1"/></svg></span>Cumple en general</span>
+              <p>Se pueden separar los resultados por sexo, edad, pueblo indígena, nacionalidad, zona, orientación sexual, identidad trans y discapacidad. El problema es que algunos grupos tienen muy pocos casos.</p>
+            </li>
+            <li class="principio">
+              <h4 class="principio-nombre">Autoidentificación</h4>
+              <span class="estado-chip"><span class="icono-estado parcial" aria-hidden="true"><svg width="10" height="10" viewBox="0 0 12 12"><circle cx="6" cy="6" r="3.6" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M6 2.4a3.6 3.6 0 0 1 0 7.2z" fill="currentColor"/></svg></span>Parcial</span>
+              <p>Pueblo indígena, orientación sexual e identidad de género se preguntan como autoidentificación, pero en muchos módulos una sola persona responde por todo el hogar.</p>
+            </li>
+            <li class="principio">
+              <h4 class="principio-nombre">Transparencia</h4>
+              <span class="estado-chip"><span class="icono-estado si" aria-hidden="true"><svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 6.3l2.3 2.3 4.7-5.1"/></svg></span>Cumple en general</span>
+              <p>Se publican la metodología, los cuestionarios, los libros de códigos y las bases, aunque en un lenguaje técnico difícil de entender.</p>
+            </li>
+            <li class="principio">
+              <h4 class="principio-nombre">Privacidad</h4>
+              <span class="estado-chip"><span class="icono-estado parcial" aria-hidden="true"><svg width="10" height="10" viewBox="0 0 12 12"><circle cx="6" cy="6" r="3.6" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M6 2.4a3.6 3.6 0 0 1 0 7.2z" fill="currentColor"/></svg></span>Parcial</span>
+              <p>La base no trae nombres ni direcciones, pero al combinar algunas variables aparecen personas únicas. Además, muchos de estos datos son sensibles según la ley chilena.</p>
+            </li>
+            <li class="principio">
+              <h4 class="principio-nombre">Rendición de cuentas</h4>
+              <span class="estado-chip"><span class="icono-estado parcial" aria-hidden="true"><svg width="10" height="10" viewBox="0 0 12 12"><circle cx="6" cy="6" r="3.6" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M6 2.4a3.6 3.6 0 0 1 0 7.2z" fill="currentColor"/></svg></span>Parcial</span>
+              <p>Existe la Ley de Transparencia, pero no hay una forma clara de que una persona sepa cómo se usaron sus datos o reclame si ese uso la perjudica.</p>
+            </li>
+          </ul>
+
+          <div class="hallazgo revelar">
+            <p class="hallazgo-etiqueta">Qué encontramos</p>
+            <p>Según ModelInspector, el sintético reproducía casi a la perfección cada variable por separado: la divergencia KL era prácticamente 0 y la diferencia máxima en la edad (prueba KS) fue de 0,006. Mirando solo eso, los datos parecían idénticos a los reales.</p>
+            <p>El problema apareció al separar por grupos. Las brechas de las personas migrantes y de las zonas rurales se mantuvieron, pero la brecha indígena casi desapareció. En los datos reales, el 23,8% de las personas indígenas está en pobreza multidimensional, contra el 16,6% de las no indígenas: 7,2 puntos de diferencia. En el sintético quedó en 18,8% contra 17,8%, apenas 1 punto.</p>
+            <p>¿Por qué pasó? La red bayesiana conectó la pertenencia indígena solo con la edad y la zona, no con la pobreza. El algoritmo se queda con las relaciones más fuertes, y una relación que afecta a un grupo del 14% de la población pesa poco. Si alguien usara esta base sin revisarla, podría concluir que los pueblos indígenas no son más pobres que el resto, y eso es falso.</p>
+          </div>
+
+          <figure class="figura revelar">
+            <div class="figura-cabecera">
+              <p class="figura-etiqueta">Figura 4 · Taller 4</p>
+              <h4 class="figura-titulo">Pobreza multidimensional por grupo en los datos originales y en los sintéticos</h4>
+            </div>
+            <div class="figura-marco">
+              <img src="assets/images/t4_activismo_brechas_invisibilizadas.png" width="799" height="441" loading="lazy"
+                   alt="Gráfico de barras horizontales con el porcentaje de pobreza multidimensional por grupo en los datos originales y en los sintéticos. Indígena: 23,8% en el original y 18,8% en el sintético. No indígena: 16,6% y 17,8%. Extranjera: 32,1% y 32,3%. Rural: 21,5% y 22,3%.">
+              <button type="button" class="figura-ampliar" aria-label="Ampliar la figura 4">Ampliar</button>
+            </div>
+            <figcaption class="figura-nota">Barras claras: datos originales (privados). Barras oscuras: datos sintéticos (publicables, ε = 1). La brecha entre personas indígenas y no indígenas casi desaparece en la versión sintética.</figcaption>
+          </figure>
+        </article>
+      </div>
+    </section>
+
+    <!-- VISUALIZACIONES (visualización + explicación de lo que hicimos) -->
+    <section id="visualizaciones" class="seccion" aria-labelledby="titulo-visualizaciones">
+      <div class="contenedor">
+        <header class="seccion-cabecera revelar">
+          <p class="kicker"><span>03</span>Evidencia</p>
+          <h2 id="titulo-visualizaciones">Las dos visualizaciones que mejor resumen el semestre</h2>
+          <p class="entradilla">Elegimos los dos gráficos que más nos hicieron pensar. Para cada uno contamos qué hicimos y qué aprendimos.</p>
+        </header>
+
+        <!-- Visualización 1 - Taller 4 -->
+        <article class="clave" aria-labelledby="titulo-clave-1">
+          <header class="taller-cabecera revelar">
+            <p class="kicker"><span>Visualización 1</span>Taller 4</p>
+            <h3 class="taller-titulo" id="titulo-clave-1">La paradoja de la privacidad</h3>
+          </header>
+
+          <div class="prosa revelar">
+            <p class="etiqueta-bloque">Qué hicimos</p>
+            <p>Tomamos 7 variables de la CASEN (pobreza multidimensional, sexo, pueblo indígena, nacionalidad, zona, edad y tamaño del hogar) y con DataSynthesizer generamos una versión sintética con privacidad diferencial (ε = 1, modo correlacionado, k = 2). Después calculamos la tasa de pobreza multidimensional de cada grupo en la base original y en la sintética.</p>
+          </div>
+
+          <figure class="figura revelar">
+            <div class="figura-cabecera">
+              <p class="figura-etiqueta">Original y sintético · ε = 1</p>
+              <h4 class="figura-titulo">Quiénes viven en pobreza multidimensional según cada base</h4>
+            </div>
+            <div class="figura-marco">
+              <img src="assets/images/t4_activismo_brechas_invisibilizadas.png" width="799" height="441" loading="lazy"
+                   alt="Comparación de la pobreza multidimensional por grupo entre los datos originales y los sintéticos. La brecha indígena baja de 7,2 a 1 punto, mientras que las de migrantes y zona rural se mantienen.">
+              <button type="button" class="figura-ampliar" aria-label="Ampliar la visualización 1">Ampliar</button>
+            </div>
+            <figcaption class="figura-nota">En el original, la diferencia entre personas indígenas y no indígenas es de 7,2 puntos. En el sintético baja a 1 punto, mientras que las brechas de migrantes y de zona rural se mantienen.</figcaption>
+          </figure>
+
+          <p class="etiqueta-bloque separada revelar">Qué aprendimos</p>
+          <ol class="pasos revelar">
+            <li class="paso">
+              <h4>El promedio engaña</h4>
+              <p>Las métricas de fidelidad daban todo bien porque el porcentaje total de pobreza se mantuvo, cerca de 17%. Pero la justicia no se mide en promedios: hay que mirar lo que pasa en los grupos más pequeños.</p>
+            </li>
+            <li class="paso">
+              <h4>Un informe con conclusiones falsas</h4>
+              <p>Alguien que usara la base sintética para escribir, por ejemplo, un informe para el Congreso, concluiría que pertenecer a un pueblo indígena no tiene relación con la pobreza. La privacidad diferencial protegió a cada persona, pero borró una desigualdad real.</p>
+            </li>
+            <li class="paso">
+              <h4>Lo que pedimos</h4>
+              <p>Que cada vez que el Estado publique datos sintéticos, incluya una tabla que muestre si se conservan las brechas entre grupos.</p>
+            </li>
+          </ol>
+        </article>
+
+        <!-- Visualización 2 - Taller 2 -->
+        <article class="clave" aria-labelledby="titulo-clave-2">
+          <header class="taller-cabecera revelar">
+            <p class="kicker"><span>Visualización 2</span>Taller 2</p>
+            <h3 class="taller-titulo" id="titulo-clave-2">El sesgo contra la discapacidad en un modelo predictivo</h3>
+          </header>
+
+          <div class="prosa revelar">
+            <p class="etiqueta-bloque">Qué hicimos</p>
+            <p>Revisamos con la librería Aequitas las predicciones del árbol de decisión que entrenamos para detectar pobreza. Comparamos la tasa de falsos negativos (FNR) y la tasa de falsos descubrimientos (FDR) entre personas con y sin dificultad para el cuidado personal (variable <code>h7e</code>), y también entre personas indígenas y no indígenas.</p>
+          </div>
+
+          <figure class="figura revelar">
+            <div class="figura-cabecera">
+              <p class="figura-etiqueta">Auditoría con Aequitas</p>
+              <h4 class="figura-titulo">Falsos negativos y falsos descubrimientos por grupo</h4>
+            </div>
+            <div class="figura-marco">
+              <img src="assets/images/t2_aequitas_disparidad_discapacidad.png" width="1089" height="435" loading="lazy"
+                   alt="Tasas de error del árbol de decisión por grupo. En personas con dificultad para el cuidado personal el FNR llega a 31,1%, contra 17,9% en personas sin dificultad.">
+              <button type="button" class="figura-ampliar" aria-label="Ampliar la visualización 2">Ampliar</button>
+            </div>
+            <figcaption class="figura-nota">Barras azules: FNR (pobres que el modelo no detecta). Barras naranjas: FDR (error entre quienes el modelo predijo como pobres). Con la pertenencia indígena las tasas son parecidas; con el cuidado personal, no.</figcaption>
+          </figure>
+
+          <p class="etiqueta-bloque separada revelar">Qué aprendimos</p>
+          <ol class="pasos revelar">
+            <li class="paso">
+              <h4>Un error que no se ve en el accuracy</h4>
+              <p>La tasa de falsos negativos llegó a 31,12% en personas con dificultad para el cuidado personal, contra 17,94% en el resto. El modelo falló un 73,5% más con las personas con discapacidad que vivían en pobreza, y mirando solo el accuracy nadie lo habría notado.</p>
+            </li>
+            <li class="paso">
+              <h4>Qué significa un falso negativo</h4>
+              <p>Es una familia vulnerable a la que el sistema le dice que no necesita ayuda. Aquí nadie quiso discriminar: el modelo aprendió sobre todo del grupo mayoritario, donde las variables se comportan distinto.</p>
+            </li>
+          </ol>
+        </article>
+      </div>
+    </section>
+
+    <!-- MANIFIESTO -->
+    <section id="activismo" class="seccion" aria-labelledby="titulo-activismo">
+      <div class="contenedor">
+        <header class="seccion-cabecera revelar">
+          <p class="kicker"><span>04</span>Propuestas</p>
+          <h2 id="titulo-activismo">Manifiesto: cinco demandas para Chile</h2>
+          <p class="entradilla">A partir de lo que encontramos, proponemos cinco cambios para que los datos públicos se usen de forma más justa y transparente.</p>
+        </header>
+
+        <ol class="demandas revelar">
+          <li class="demanda">
+            <p class="demanda-num">01</p>
+            <h3>Nada sobre nosotros sin nosotros</h3>
+            <p>Que juntas de vecinos, comunidades indígenas y organizaciones de personas con discapacidad participen en definir qué cuenta como pobreza en la CASEN, y que esa definición no quede solo en manos de equipos técnicos.</p>
+          </li>
+          <li class="demanda">
+            <p class="demanda-num">02</p>
+            <h3>Auditorías por grupo obligatorias</h3>
+            <p>Ningún algoritmo que asigne subsidios públicos debería usarse sin una auditoría independiente de equidad, con resultados separados por género, discapacidad, pueblo indígena y territorio.</p>
+          </li>
+          <li class="demanda">
+            <p class="demanda-num">03</p>
+            <h3>Privacidad que no borre a las minorías</h3>
+            <p>Todo dataset sintético o con privacidad diferencial que publique el Estado debería informar si conserva las diferencias entre grupos. Si no, se corre el riesgo de invisibilizar a quienes ya han sido marginados.</p>
+          </li>
+          <li class="demanda">
+            <p class="demanda-num">04</p>
+            <h3>Derecho a una explicación</h3>
+            <p>Si un algoritmo clasifica o rechaza a alguien, esa persona debería recibir una explicación clara, por ejemplo con SHAP, LIME o un modelo interpretable, y poder apelar ante una persona con facultades para cambiar la decisión.</p>
+          </li>
+          <li class="demanda">
+            <p class="demanda-num">05</p>
+            <h3>Acceso seguro con el modelo Five Safes</h3>
+            <p>Usar el modelo de las cinco seguridades (proyectos, personas, entornos, datos y resultados seguros) para que la academia y la sociedad civil puedan investigar sin poner en riesgo la privacidad de nadie.</p>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- CONCLUSIÓN -->
+    <section id="conclusiones" class="seccion" aria-labelledby="titulo-conclusiones">
+      <div class="contenedor">
+        <header class="seccion-cabecera revelar">
+          <p class="kicker"><span>05</span>Reflexión final</p>
+          <h2 id="titulo-conclusiones">Los datos no son neutrales</h2>
+          <p class="entradilla">Después de este semestre en Ética para Ciencia de Datos y Estadística nos quedó claro que los datos y los algoritmos reflejan las desigualdades de la sociedad de la que salen.</p>
+        </header>
+
+        <ul class="aprendizajes revelar">
+          <li class="aprendizaje">
+            <p class="aprendizaje-taller">Taller 1 · Exploración</p>
+            <h3>Lo que falta en la muestra, el modelo no lo ve</h3>
+            <p>Una muestra desbalanceada distorsiona lo que sabemos de las minorías, y los cruces con pocos casos inventan patrones que no existen.</p>
+          </li>
+          <li class="aprendizaje">
+            <p class="aprendizaje-taller">Taller 2 · Justicia algorítmica</p>
+            <h3>Un buen promedio puede esconder un sesgo</h3>
+            <p>Un modelo con casi 94% de accuracy fallaba mucho más con las personas con discapacidad. Y forzar la paridad a ciegas empeoró a un grupo sin ayudar al otro.</p>
+          </li>
+          <li class="aprendizaje">
+            <p class="aprendizaje-taller">Taller 3 · Explicabilidad</p>
+            <h3>Explicar sirve para fiscalizar</h3>
+            <p>LIME y SHAP nos dejaron abrir la caja negra y ver por qué falla un clasificador, algo necesario para poder cuestionarlo.</p>
+          </li>
+          <li class="aprendizaje">
+            <p class="aprendizaje-taller">Taller 4 · Derechos y privacidad</p>
+            <h3>Proteger la privacidad no debería borrar a nadie</h3>
+            <p>Incluso una técnica tan sólida como la privacidad diferencial puede invisibilizar a un grupo si nadie revisa los resultados con perspectiva de derechos humanos.</p>
+          </li>
+        </ul>
+
+        <p class="frase-final revelar">Hacer activismo de datos es poner la técnica al servicio de la justicia social, de la dignidad de las personas y de la rendición de cuentas del poder.</p>
+      </div>
+    </section>
+
+    <!-- RECURSOS Y REFERENCIAS -->
+    <section id="descargas" class="seccion" aria-labelledby="titulo-descargas">
+      <div class="contenedor">
+        <header class="seccion-cabecera revelar">
+          <p class="kicker"><span>06</span>Entregables</p>
+          <h2 id="titulo-descargas">Notebooks, documentos y referencias</h2>
+          <p class="entradilla">Aquí están los archivos de la entrega final y las fuentes que citamos.</p>
+        </header>
+
+        <ul class="recursos revelar">
+          <li>
+            <a class="tarjeta" href="Taller_sumativo_4_CASEN.pdf" download>
+              <span class="tarjeta-num">PDF</span>
+              <span class="tarjeta-titulo">Taller 4 en PDF</span>
+              <span class="tarjeta-texto">El documento final con todas las respuestas, tablas y análisis (1,05 MB).</span>
+              <span class="tarjeta-ir">Descargar PDF ↓</span>
+            </a>
+          </li>
+          <li>
+            <a class="tarjeta" href="Taller_sumativo_4_CASEN.ipynb" download>
+              <span class="tarjeta-num">Notebook</span>
+              <span class="tarjeta-titulo">Notebook del Taller 4</span>
+              <span class="tarjeta-texto">El cuaderno de Jupyter (.ipynb) con el código de DataSynthesizer y la auditoría, listo para volver a ejecutar.</span>
+              <span class="tarjeta-ir">Descargar notebook ↓</span>
+            </a>
+          </li>
+          <li>
+            <a class="tarjeta" href="https://github.com/SergioHdezDC/Taller_ETI195_Casen2024" target="_blank" rel="noopener noreferrer">
+              <span class="tarjeta-num">GitHub</span>
+              <span class="tarjeta-titulo">Repositorio del proyecto</span>
+              <span class="tarjeta-texto">El código, los datos y los notebooks de los cuatro talleres, junto con los archivos de este sitio.</span>
+              <span class="tarjeta-ir">Ir al repositorio ↗</span>
+            </a>
+          </li>
+        </ul>
+
+        <!-- Referencias en formato APA 7 -->
+        <div class="referencias">
+          <h3 class="referencias-titulo">Referencias</h3>
+          <ul>
+            <li>Barocas, S., y Selbst, A. D. (2016). Big data's disparate impact. <em>California Law Review, 104</em>(3), 671–732. https://doi.org/10.15779/Z38BG31</li>
+            <li>Buolamwini, J., y Gebru, T. (2018). Gender shades: Intersectional accuracy disparities in commercial gender classification. <em>Proceedings of Machine Learning Research, 81</em>, 1–15.</li>
+            <li>Desai, T., Ritchie, F., y Welpton, R. (2016). <em>Five Safes: Designing data access for research</em> (Economics Working Paper Series 1601). University of the West of England.</li>
+            <li>D'Ignazio, C., y Klein, L. F. (2020). <em>Data feminism</em>. MIT Press.</li>
+            <li>Dwork, C., y Roth, A. (2014). The algorithmic foundations of differential privacy. <em>Foundations and Trends in Theoretical Computer Science, 9</em>(3–4), 211–407. https://doi.org/10.1561/0400000042</li>
+            <li>Ley N° 19.628. (1999). Sobre protección de la vida privada. Biblioteca del Congreso Nacional de Chile.</li>
+            <li>Ley N° 21.719. (2024). Regula la protección y el tratamiento de los datos personales y crea la Agencia de Protección de Datos Personales. <em>Diario Oficial de la República de Chile</em>.</li>
+            <li>Lundberg, S. M., Erion, G., Chen, H., DeGrave, A., Prutkin, J. M., Nair, B., Katz, R., Himmelfarb, J., Bansal, N., y Lee, S.-I. (2020). From local explanations to global understanding with explainable AI for trees. <em>Nature Machine Intelligence, 2</em>(1), 56–67. https://doi.org/10.1038/s42256-019-0138-9</li>
+            <li>Milan, S., y van der Velden, L. (2016). The alternative epistemologies of data activism. <em>Digital Culture &amp; Society, 2</em>(2), 57–74. https://doi.org/10.14361/dcs-2016-0205</li>
+            <li>Office of the United Nations High Commissioner for Human Rights. (2018). <em>A human rights-based approach to data: Leaving no one behind in the 2030 Agenda for Sustainable Development</em>. OHCHR.</li>
+            <li>Ping, H., Stoyanovich, J., y Howe, B. (2017). DataSynthesizer: Privacy-preserving synthetic datasets. En <em>Proceedings of the 29th International Conference on Scientific and Statistical Database Management</em> (pp. 1–5). https://doi.org/10.1145/3085504.3091117</li>
+            <li>Ribeiro, M. T., Singh, S., y Guestrin, C. (2016). "Why should I trust you?": Explaining the predictions of any classifier. En <em>Proceedings of the 22nd ACM SIGKDD International Conference on Knowledge Discovery and Data Mining</em> (pp. 1135–1144). https://doi.org/10.1145/2939672.2939778</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- PIE DE PÁGINA -->
+  <footer class="pie">
+    <div class="contenedor">
+      <div class="pie-grid">
+        <div>
+          <p><strong>ETI195 · Ética para Ciencia de Datos y Estadística</strong> · 2026</p>
+          <p>Proyecto de activismo de datos con la Encuesta CASEN 2024 del Ministerio de Desarrollo Social y Familia.</p>
+        </div>
+        <div>
+          <p class="pie-titulo">Integrantes</p>
+          <ul>
+            <li>Sergio Andrés Hernández Salgado</li>
+            <li>Marco Antonio Ramírez Gaete</li>
+            <li>Reinaldo Rodrigo Oliva Morales</li>
+            <li>Juan Tomás José Lepivil Vigueras</li>
+          </ul>
+        </div>
+        <div>
+          <p class="pie-titulo">Enlaces</p>
+          <ul>
+            <li><a href="https://github.com/SergioHdezDC/Taller_ETI195_Casen2024" target="_blank" rel="noopener noreferrer">Repositorio en GitHub</a></li>
+            <li><a href="Taller_sumativo_4_CASEN.pdf" download>Descargar el Taller 4 (PDF)</a></li>
+            <li><a href="Taller_sumativo_4_CASEN.ipynb" download>Descargar el notebook (.ipynb)</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- FIGURAS -->
+  <dialog class="visor" id="visor" aria-labelledby="visor-texto">
+    <div class="visor-contenido">
+      <div class="visor-barra">
+        <p class="visor-texto" id="visor-texto"></p>
+        <form method="dialog">
+          <button class="visor-cerrar" type="submit" aria-label="Cerrar la figura ampliada">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M2 2l10 10M12 2L2 12"/></svg>
+          </button>
+        </form>
+      </div>
+      <img class="visor-imagen" id="visor-imagen" alt="">
+    </div>
+  </dialog>
+
+  <script>
+    /* Comportamiento de la página sólo con javascript */
+    (() => {
+      'use strict';
+
+      const raiz = document.documentElement;
+      const menosMovimiento = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      /* Barra superior */
+      const bloques = document.querySelectorAll('.revelar');
+      if (!('IntersectionObserver' in window) || menosMovimiento) {
+        bloques.forEach((bloque) => bloque.classList.add('visible'));
+      } else {
+        const observadorBloques = new IntersectionObserver((entradas) => {
+          entradas.forEach((entrada) => {
+            if (entrada.isIntersecting) {
+              entrada.target.classList.add('visible');
+              observadorBloques.unobserve(entrada.target);
+            }
+          });
+        }, { rootMargin: '0px 0px -8% 0px' });
+        bloques.forEach((bloque) => observadorBloques.observe(bloque));
+      }
+
+      /*  Barra Scroll */
+      const listaNav = document.querySelector('.nav-lista');
+      const enlacesNav = Array.from(document.querySelectorAll('.nav-lista a'));
+
+      const marcarActivo = (id) => {
+        enlacesNav.forEach((enlace) => {
+          const activo = enlace.getAttribute('href') === '#' + id;
+          enlace.classList.toggle('activo', activo);
+          if (!activo) {
+            enlace.removeAttribute('aria-current');
+            return;
+          }
+          enlace.setAttribute('aria-current', 'true');
+          // En pantallas angostas la lista se desplaza, se centra el enlace activo
+          if (listaNav.scrollWidth > listaNav.clientWidth) {
+            listaNav.scrollTo({
+              left: enlace.offsetLeft - (listaNav.clientWidth - enlace.offsetWidth) / 2,
+              behavior: menosMovimiento ? 'auto' : 'smooth',
+            });
+          }
+        });
+      };
+
+      if ('IntersectionObserver' in window) {
+        const observadorSecciones = new IntersectionObserver((entradas) => {
+          entradas.forEach((entrada) => {
+            if (entrada.isIntersecting) marcarActivo(entrada.target.id);
+          });
+        }, { rootMargin: '-40% 0px -55% 0px' }); // franja angosta al centro de la pantalla
+        document.querySelectorAll('main > section[id]').forEach((seccion) => observadorSecciones.observe(seccion));
+      }
+
+      const barraProgreso = document.querySelector('.progreso');
+      let progresoPendiente = false;
+      const actualizarProgreso = () => {
+        const recorrible = raiz.scrollHeight - window.innerHeight;
+        const avance = recorrible > 0 ? Math.min(1, Math.max(0, window.scrollY / recorrible)) : 0;
+        barraProgreso.style.transform = 'scaleX(' + avance + ')';
+        progresoPendiente = false;
+      };
+      if (barraProgreso) {
+        window.addEventListener('scroll', () => {
+          if (!progresoPendiente) {
+            progresoPendiente = true;
+            requestAnimationFrame(actualizarProgreso);
+          }
+        }, { passive: true });
+        window.addEventListener('resize', actualizarProgreso);
+        actualizarProgreso();
+      }
+
+      /* MATRIZ DE PUNTOS DE LA PORTADA */
+      const matriz = document.getElementById('puntos');
+      if (matriz) {
+        const TOTAL_PUNTOS = 212;
+        const PUNTOS_DESTACADOS = 37;
+        const fragmento = document.createDocumentFragment();
+        for (let i = 1; i <= TOTAL_PUNTOS; i++) {
+          const punto = document.createElement('span');
+          punto.className = i > TOTAL_PUNTOS - PUNTOS_DESTACADOS ? 'punto destacado' : 'punto';
+          punto.style.setProperty('--i', i); // retraso de la animación de entrada
+          fragmento.appendChild(punto);
+        }
+        matriz.appendChild(fragmento);
+      }
+
+      /* FIGURAS */
+      const visor = document.getElementById('visor');
+      const visorImagen = document.getElementById('visor-imagen');
+      const visorTexto = document.getElementById('visor-texto');
+      let botonQueAbrio = null;
+
+      const abrirVisor = (imagen, boton) => {
+        if (!visor || typeof visor.showModal !== 'function') {
+          window.open(imagen.currentSrc || imagen.src, '_blank', 'noopener'); // navegadores sin dialog
+          return;
+        }
+        const figura = imagen.closest('figure');
+        const titulo = figura ? figura.querySelector('.figura-titulo') : null;
+        visorImagen.src = imagen.currentSrc || imagen.src;
+        visorImagen.alt = imagen.alt;
+        visorTexto.textContent = titulo ? titulo.textContent : '';
+        botonQueAbrio = boton || null;
+        visor.showModal();
+      };
+
+      document.querySelectorAll('.figura-marco').forEach((marco) => {
+        const imagen = marco.querySelector('img');
+        const boton = marco.querySelector('.figura-ampliar');
+        imagen.addEventListener('click', () => abrirVisor(imagen, null));
+        if (boton) boton.addEventListener('click', () => abrirVisor(imagen, boton));
+      });
+
+      if (visor) {
+        // Un clic en el fondo oscuro cierra el visor
+        visor.addEventListener('click', (evento) => {
+          if (evento.target === visor) visor.close();
+        });
+        // Al cerrar, el foco vuelve al botón "ampliar" que se usó para abrir
+        visor.addEventListener('close', () => {
+          if (botonQueAbrio) botonQueAbrio.focus();
+        });
+      }
+    })();
+  </script>
+
+</body>
+</html>
